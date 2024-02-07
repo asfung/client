@@ -1,0 +1,135 @@
+<template>
+  <v-app>
+    <!-- Sidebar -->
+    <v-navigation-drawer app v-model="drawer" color="accent">
+      <v-list>
+        <v-list-item class="head-menu">
+          <v-list-item-title>Menu</v-list-item-title>
+        </v-list-item>
+      </v-list>
+
+      <!--  -->
+      <v-list dense>
+        <v-list-item v-for="(item, index) in items" :key="index" link @click="navigate(index)" :class="{'active': selectedIndex === index}">
+          <v-list-item-action>
+            <v-icon>{{ item.icon }}</v-icon>
+          </v-list-item-action>
+          <v-list-item-content>
+            <v-list-item-title>{{ item.title }}</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+      </v-list>
+    </v-navigation-drawer>
+
+    <!-- TOP BAR -->
+    <v-app-bar app color="#66BB6A" dark>
+      <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+      <v-toolbar-title>CRUD</v-toolbar-title>
+      <!-- <v-container> -->
+        <v-spacer></v-spacer>
+        <!-- <v-card
+          class="d-flex flex-row-reverse transparent"
+        > -->
+          <!-- <v-btn
+          color="primary"
+          @click="$router.push('/login')"
+          class="mr-4"
+          >
+          Login
+          </v-btn> -->
+          <v-btn
+          color="error"
+          class="mr-4"
+          @click="logout()"
+          >
+          Logout
+          </v-btn>
+          <!-- <Buttonify :kemana='"/"' /> -->
+          <v-btn
+          color="accent"
+          @click="$router.push('/')"
+          >
+          Home
+          </v-btn>
+
+        <!-- </v-card> -->
+      <!-- </v-container> -->
+    </v-app-bar>
+
+    <v-main>
+      <v-container fluid>
+        <v-row>
+          <v-col cols="12">
+            <v-card v-if="selectedIndex === 0"><DataViewTable /></v-card>
+            <v-card v-if="selectedIndex === 1" :height="300">Ntahlah...</v-card>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-main>
+  </v-app>
+</template>
+
+<script>
+import axios from 'axios'
+export default {
+  middleware: ['auth'],
+  data() {
+    return {
+      drawer: true,
+      selectedIndex: 0, 
+      items: [
+        { title: 'Data Table', icon: 'mdi-view-dashboard' },
+        { title: 'Ntah', icon: 'mdi-settings' },
+      ]
+    };
+  },
+  methods: {
+    navigate(index) {
+      this.selectedIndex = index;
+    },
+    async logout(){
+      try{
+        const token = localStorage.getItem('token')
+        await axios.post('http://localhost:8000/api/auth/logout', null, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        localStorage.removeItem('token');
+        this.$router.push('/login');
+        console.log('byeee......')
+      }catch(err){
+
+        // TODO: jalan sementara pake ini dulu 
+        
+        const token = localStorage.getItem('token')
+        const refreshToken = await axios.post('http://localhost:8000/api/auth/refresh', null, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        // set ke yang baru
+        const newToken = refreshToken.data.authorization.token // belum liat preiew response nya, sapa tau bener 
+        localStorage.setItem('token', newToken)
+
+        console.log('ada yang gk beres nih')
+        console.log(`error: ${err}`)
+      }
+
+    }
+  }
+};
+</script>
+
+<style>
+.active {
+  background-image: linear-gradient(to right, red , yellow);
+  color: #ffffff; 
+}
+
+.head-menu{
+  background-image: linear-gradient(to right, #d10f0f , #d4d64b);
+}
+
+</style>
