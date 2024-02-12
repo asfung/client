@@ -41,9 +41,9 @@
 
     <v-btn
     color="primary"
-    @click="$router.push('/register')"
+    @click="$router.push('/ui')"
     >
-    Register
+    Back
     </v-btn>
     <v-btn
     color="error"
@@ -66,7 +66,6 @@
 
 <script>
   import axios from 'axios';
-  import Swal from 'vue-sweetalert2'
   export default {
     layout: 'loginLayout',
     //not working
@@ -103,37 +102,14 @@
           console.log('token mu bang gk papa diliatin : ', token)
           // ada di ~/.config/chromium/default/local\ storage/
           localStorage.setItem('token', token);
-          localStorage.setItem('dataLogin', JSON.stringify(response.data.user))
 
           this.$router.push('/ui');
-
-          const getDataLoginStorage = localStorage.getItem('dataLogin')
-          const dataLogin = JSON.parse(getDataLoginStorage)
-
-          var toastMixin = this.$swal.mixin({
-            toast: true,
-            icon: 'success',
-            title: 'General Title',
-            animation: false,
-            position: 'top-right',
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: false,
-            didOpen: (toast) => {
-              toast.addEventListener('mouseenter', Swal.stopTimer)
-              toast.addEventListener('mouseleave', Swal.resumeTimer)
-            }
-          });
-          toastMixin.fire({
-            animation: true,
-            title: `anda login sebagai ${dataLogin.name}`
-          });
         } catch (error) {
             console.error('Error logging in:', error);
-            // window.alert('Login failed. Please check your credentials.');
+            window.alert('Login failed. Please check your credentials.');
         }
       },
-      
+
 
     }
 
