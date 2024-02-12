@@ -220,6 +220,7 @@ export default {
           gaji: this.newItem.gaji,
         })
         console.log(pegawaiTambah.data)
+        this.findAll()  
         this.closeNewItemDialog();
       }catch(err){
         console.log('gk berhasil ')
@@ -262,12 +263,13 @@ export default {
         // edit pada editedItem aray
         if (response.status === 200) {
           const index = this.items.findIndex((item) => item.id === this.editedItem.id);
+          this.closeEditItemDialog();
         if (index !== -1) {
           this.$set(this.items, index, { ...this.editedItem });
           // this.$set(this.items, index, { ...this.items[index], ...this.editedItem });
           console.log(this.editedItem.file.name)
         }
-        this.closeEditItemDialog();
+        // this.closeEditItemDialog();
         } else {
           console.error('gagal edit pegawai');
         }
