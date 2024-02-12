@@ -102,19 +102,21 @@ export default {
 
         // TODO: jalan sementara pake ini dulu 
         
-        const token = localStorage.getItem('token')
-        const refreshToken = await axios.post('http://localhost:8000/api/auth/refresh', null, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
+        // const token = localStorage.getItem('token')
+        // const refreshToken = await axios.post('http://localhost:8000/api/auth/refresh', null, {
+        //   headers: {
+        //     Authorization: `Bearer ${token}`
+        //   }
+        // });
 
-        // set ke yang baru
-        const newToken = refreshToken.data.authorization.token // belum liat preiew response nya, sapa tau bener 
-        localStorage.setItem('token', newToken)
-
-        console.log('ada yang gk beres nih')
+        // // set ke yang baru
+        // const newToken = refreshToken.data.authorization.token // belum liat preiew response nya, sapa tau bener 
+        // localStorage.setItem('token', newToken)
         console.log(`error: ${err}`)
+        console.log('ada yang gk beres nih, silahkan login ulang')
+        localStorage.removeItem('token')
+        window.location.href = "/login"
+
       }
 
     }

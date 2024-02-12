@@ -6,6 +6,7 @@ export default function ({ redirect }) {
   }
   if(token){
     console.log('token nya ada bang')
+    console.log(localStorage.getItem('token'))
   }
 
 }
