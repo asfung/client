@@ -5,8 +5,7 @@ export default function ({ redirect }) {
     console.log('eitsss gk bisa harus ada token ')
   }
   if(token){
-    console.log('token nya ada bang ==> tracking from middleware')
-    // console.log(localStorage.getItem('token'))
+    console.log('token nya ada bang')
   }
 
 }
