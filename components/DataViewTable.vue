@@ -72,7 +72,7 @@
           </v-card-text>
           <v-card-actions>
             <!-- <v-btn @click="saveEditedItem" color="primary">Save</v-btn> -->
-            <v-btn @click="addPegawai" color="primary">Save</v-btn>
+            <v-btn @click="editById" color="primary">Save</v-btn>
             <v-btn @click="closeEditItemDialog" color="error">Cancel</v-btn>
           </v-card-actions>
         </v-card>
@@ -245,6 +245,39 @@ export default {
         console.info(err)
       }
     },
+
+    async editById(){
+      try{
+        const token = localStorage.getItem('token');
+        const response = await axios.put(`http://localhost:8000/api/v1/pegawai/${this.editedItem.id}`, 
+        {
+          nama: this.editedItem.nama,
+          jenis_kelamin: this.editedItem.jenis_kelamin,
+          kota: this.editedItem.kota,
+          agama: this.editedItem.agama,
+          posisi: this.editedItem.posisi,
+          gaji: this.editedItem.gaji,
+        });
+
+        // edit pada editedItem aray
+        if (response.status === 200) {
+          const index = this.items.findIndex((item) => item.id === this.editedItem.id);
+        if (index !== -1) {
+          this.$set(this.items, index, { ...this.editedItem });
+          // this.$set(this.items, index, { ...this.items[index], ...this.editedItem });
+          console.log(this.editedItem.file.name)
+        }
+        this.closeEditItemDialog();
+        } else {
+          console.error('gagal edit pegawai');
+        }
+
+        // this.$set(this.items, index, { ...this.editedItem });
+        // this.closeEditItemDialog();   
+      }catch(err){
+
+      }
+    },    
 
     filterItems() {
 
