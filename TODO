@@ -1,3 +1,6 @@
-- button action for update and delete not appear
-- customizing the ui
-- adding login button in top bar right
+- button action for update and delete not appear => DONE
+- customizing the ui => DONE
+- adding login button in top bar right => DONE
+
+todo
+make the api can accept with form data not only from json 

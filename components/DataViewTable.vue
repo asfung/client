@@ -14,6 +14,9 @@
         <template v-slot:item="props">
           <tr>
             <td>{{ props.item.id }}</td>
+            <td>
+              <img :src="`http://localhost:8000/storage/${props.item.file}`" alt="gambar" style="max-width: 50px; max-height: 50px;">
+            </td>
             <td>{{ props.item.nama }}</td>
             <td>{{ props.item.jenis_kelamin }}</td>
             <td>{{ props.item.kota }}</td>
@@ -41,6 +44,8 @@
           <v-card-title>New Item</v-card-title>
           <v-card-text>
             <!-- <v-text-field v-model="newItem.id" label="No"></v-text-field> -->
+            <p>{{ newItem.file }}</p>
+            <v-file-input v-model="newItem.file" label="Upload Image" accept="image/*"></v-file-input>
             <v-text-field v-model="newItem.nama" label="Nama" required></v-text-field>
             <!-- <v-text-field v-model="newItem.jenis_kelamin" label="Jenis Kelamin"></v-text-field> -->
             <v-select v-model="newItem.jenis_kelamin" :items="genderOptions" label="Jenis Kelamin"></v-select>
@@ -61,7 +66,12 @@
         <v-card>
           <v-card-title>Edit Item</v-card-title>
           <v-card-text>
+            <p>{{ editedItem.file }}</p>
+            <p>{{ editedItem.nama }}</p>
+            <p>{{ editedItem.jenis_kelamin }}</p>
+
             <v-text-field v-model="editedItem.id" label="No" readonly></v-text-field>
+            <v-file-input v-model="editedItem.file" label="Upload Image" accept="image/*"></v-file-input>
             <v-text-field v-model="editedItem.nama" label="Nama"></v-text-field>
             <!-- <v-text-field v-model="editedItem.jenis_kelamin" label="Jenis Kelamin"></v-text-field> -->
             <v-select v-model="editedItem.jenis_kelamin" :items="genderOptions" label="Jenis Kelamin"></v-select>
@@ -72,7 +82,7 @@
           </v-card-text>
           <v-card-actions>
             <!-- <v-btn @click="saveEditedItem" color="primary">Save</v-btn> -->
-            <v-btn @click="addPegawai" color="primary">Save</v-btn>
+            <v-btn @click="editById" color="primary">Save</v-btn>
             <v-btn @click="closeEditItemDialog" color="error">Cancel</v-btn>
           </v-card-actions>
         </v-card>
@@ -106,6 +116,7 @@ export default {
       items: [],
       headers: [
         { text: "No", value: "id" },
+        { text: "Image", value: "file"},
         { text: "Nama", value: "nama" },
         { text: "Jenis Kelamin", value: "jenis_kelamin" },
         { text: "Kota", value: "kota" },
@@ -125,6 +136,7 @@ export default {
         agama: "",
         posisi: "",
         gaji: "",
+        file: [],
       },
       editedItem: {
         id: 0,
@@ -134,6 +146,7 @@ export default {
         agama: "",
         posisi: "",
         gaji: "",
+        file: [],
       },
     };
   },
@@ -151,13 +164,14 @@ export default {
     closeNewItemDialog() {
       this.newItemDialog = false;
       // clearing the form of new item after save new item
-      this.newItem = { id: "", nama: "", jenis_kelamin: "", kota: "", agama: "", posisi: "", gaji: "" };
+      this.newItem = { id: "", file: "", nama: "", jenis_kelamin: "", kota: "", agama: "", posisi: "", gaji: "" };
     },
     saveNewItem() {
       const nextId = this.items.length > 0 ? this.items[this.items.length - 1].id + 1 : 1;
       this.items.push({
         // id: this.newItem.id,
         id: nextId,
+        file: this.newItem.file,
         nama: this.newItem.nama,
         jenis_kelamin: this.newItem.jenis_kelamin,
         kota: this.newItem.kota,
@@ -169,6 +183,8 @@ export default {
     },
     openEditItemDialog(item) {
       this.editedItem = { ...item };
+      // this.editedItem = JSON.parse(JSON.stringify(item));
+      // console.log(this.editedItem.file)
       this.editItemDialog = true;
     },
     closeEditItemDialog() {
@@ -203,24 +219,44 @@ export default {
     // kita gunakan api nya kaka
     async findAll(){
       try{
-        const pegawais = await axios.get('http://localhost:8000/api/v1/pegawai')
+        const token = localStorage.getItem('token')
+        const pegawais = await axios.get('http://localhost:8000/api/v1/pegawai', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        
         this.items = pegawais.data 
       }catch(err){
         console.log(err)
+        localStorage.removeItem('token')
+        console.log('harap login ulang')
+        window.location.href = "/login"
       }
     },
+    
     async addPegawai(){
       try{
-        const pegawaiTambah = await axios.post('http://localhost:8000/api/v1/pegawai', {
-          nama: this.newItem.nama,
-          jenis_kelamin: this.newItem.jenis_kelamin,
-          kota: this.newItem.kota,
-          agama: this.newItem.agama,
-          posisi: this.newItem.posisi,
-          gaji: this.newItem.gaji,
+        const token = localStorage.getItem('token')
+        const formData = new FormData()
+      
+        formData.append('file', this.newItem.file);
+        formData.append('nama', this.newItem.nama);
+        formData.append('jenis_kelamin', this.newItem.jenis_kelamin);
+        formData.append('kota', this.newItem.kota);
+        formData.append('agama', this.newItem.agama);
+        formData.append('posisi', this.newItem.posisi);
+        formData.append('gaji', this.newItem.gaji);
+        const pegawaiTambah = await axios.post('http://localhost:8000/api/v1/pegawai', formData, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',
+          }
         })
         console.log(pegawaiTambah.data)
+        // console.log(this.newItem.file)
         this.closeNewItemDialog();
+        this.findAll() // walaaahhh
       }catch(err){
         console.log('gk berhasil ')
         console.log(err)
@@ -229,7 +265,13 @@ export default {
 
     async deletePegawai(){
       try{
-        const response = await axios.delete(`http://localhost:8000/api/v1/pegawai/${this.itemToDeleteId}`);
+        const token = localStorage.getItem('token')
+        const response = await axios.delete(`http://localhost:8000/api/v1/pegawai/${this.itemToDeleteId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            // 'Content-Type': 'multipart/form-data',
+          }
+        });
       if (response.status === 200) {
         console.log('terhapus..');
         const index = this.items.findIndex((item) => item.id === this.itemToDeleteId);
@@ -238,11 +280,54 @@ export default {
         }
         this.cancelDelete();
       } else {
-        console.error('Failed to delete pegawai');
+        console.error('gagal delete');
       }
       }catch(err){
-        console.log('gk bisa dihapus kocakk')
+        // console.log('gk bisa dihapus kocakk')
         console.info(err)
+      }
+    },
+
+    async editById(){
+      try{
+        const formData = new FormData()
+        // formData.append('file', this.editedItem.file);
+        formData.append('nama', this.editedItem.nama);
+        formData.append('jenis_kelamin', this.editedItem.jenis_kelamin);
+        formData.append('kota', this.editedItem.kota);
+        formData.append('agama', this.editedItem.agama);
+        formData.append('posisi', this.editedItem.posisi);
+        formData.append('gaji', this.editedItem.gaji);
+        
+        if (this.editedItem.file instanceof File) {
+          formData.append('file', this.editedItem.file);
+        }
+
+        const token = localStorage.getItem('token');
+        const response = await axios.put(`http://localhost:8000/api/v1/pegawai/${this.editedItem.id}`, formData ,{
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',
+          }
+        });
+
+        // edit pada editedItem aray
+        if (response.status === 200) {
+          const index = this.items.findIndex((item) => item.id === this.editedItem.id);
+        if (index !== -1) {
+          this.$set(this.items, index, { ...this.editedItem });
+          // this.$set(this.items, index, { ...this.items[index], ...this.editedItem });
+          console.log(this.editedItem.file.name)
+        }
+        this.closeEditItemDialog();
+        } else {
+          console.error('gagal edit pegawai');
+        }
+
+        // this.$set(this.items, index, { ...this.editedItem });
+        // this.closeEditItemDialog();   
+      }catch(err){
+
       }
     },
 
