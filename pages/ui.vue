@@ -24,7 +24,7 @@
     <!-- TOP BAR -->
     <v-app-bar app color="#66BB6A" dark>
       <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
-      <v-toolbar-title>CRUD</v-toolbar-title>
+      <v-toolbar-title>CRUD | {{ dataLogin.name }}</v-toolbar-title>
       <!-- <v-container> -->
         <v-spacer></v-spacer>
         <!-- <v-card
@@ -71,10 +71,12 @@
 
 <script>
 import axios from 'axios'
+import Swal from 'vue-sweetalert2'
 export default {
   middleware: ['auth'],
   data() {
     return {
+      dataLogin: "",
       drawer: true,
       selectedIndex: 0, 
       items: [
@@ -96,7 +98,29 @@ export default {
           }
         });
         localStorage.removeItem('token');
+        localStorage.removeItem('dataLogin')
         this.$router.push('/login');
+
+        // sweetalert2
+        var toastMixin = this.$swal.mixin({
+            toast: true,
+            icon: 'info',
+            title: 'General Title',
+            animation: false,
+            position: 'top-right',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: false,
+            didOpen: (toast) => {
+              toast.addEventListener('mouseenter', Swal.stopTimer)
+              toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+          });
+          toastMixin.fire({
+            animation: true,
+            title: 'Bye.......'
+          });
+
         console.log('byeee......')
       }catch(err){
 
@@ -115,11 +139,16 @@ export default {
         console.log(`error: ${err}`)
         console.log('ada yang gk beres nih, silahkan login ulang')
         localStorage.removeItem('token')
+        localStorage.removeItem('dataLogin')
         window.location.href = "/login"
 
       }
 
     }
+  },
+  mounted(){
+    const dataLoginStorage = localStorage.getItem('dataLogin')
+    this.dataLogin = JSON.parse(dataLoginStorage)    
   }
 };
 </script>

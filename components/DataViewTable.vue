@@ -44,7 +44,8 @@
           <v-card-title>New Item</v-card-title>
           <v-card-text>
             <!-- <v-text-field v-model="newItem.id" label="No"></v-text-field> -->
-            <!-- <v-file-input v-model="newItem.file" label="Upload Image" accept="image/*"></v-file-input> -->
+            <p>{{ newItem.file }}</p>
+            <v-file-input v-model="newItem.file" label="Upload Image" accept="image/*"></v-file-input>
             <v-text-field v-model="newItem.nama" label="Nama" required></v-text-field>
             <!-- <v-text-field v-model="newItem.jenis_kelamin" label="Jenis Kelamin"></v-text-field> -->
             <v-select v-model="newItem.jenis_kelamin" :items="genderOptions" label="Jenis Kelamin"></v-select>
@@ -65,7 +66,12 @@
         <v-card>
           <v-card-title>Edit Item</v-card-title>
           <v-card-text>
+            <p>{{ editedItem.file }}</p>
+            <p>{{ editedItem.nama }}</p>
+            <p>{{ editedItem.jenis_kelamin }}</p>
+
             <v-text-field v-model="editedItem.id" label="No" readonly></v-text-field>
+            <v-file-input v-model="editedItem.file" label="Upload Image" accept="image/*"></v-file-input>
             <v-text-field v-model="editedItem.nama" label="Nama"></v-text-field>
             <!-- <v-text-field v-model="editedItem.jenis_kelamin" label="Jenis Kelamin"></v-text-field> -->
             <v-select v-model="editedItem.jenis_kelamin" :items="genderOptions" label="Jenis Kelamin"></v-select>
@@ -130,7 +136,7 @@ export default {
         agama: "",
         posisi: "",
         gaji: "",
-        file: "",
+        file: [],
       },
       editedItem: {
         id: 0,
@@ -140,7 +146,7 @@ export default {
         agama: "",
         posisi: "",
         gaji: "",
-        file: "",
+        file: [],
       },
     };
   },
@@ -228,10 +234,12 @@ export default {
         window.location.href = "/login"
       }
     },
+    
     async addPegawai(){
       try{
         const token = localStorage.getItem('token')
         const formData = new FormData()
+      
         formData.append('file', this.newItem.file);
         formData.append('nama', this.newItem.nama);
         formData.append('jenis_kelamin', this.newItem.jenis_kelamin);
@@ -261,7 +269,7 @@ export default {
         const response = await axios.delete(`http://localhost:8000/api/v1/pegawai/${this.itemToDeleteId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data',
+            // 'Content-Type': 'multipart/form-data',
           }
         });
       if (response.status === 200) {

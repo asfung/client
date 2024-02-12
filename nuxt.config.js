@@ -62,6 +62,7 @@ export default {
   modules: [
     // https://go.nuxtjs.dev/axios
     '@nuxtjs/axios',
+    'vue-sweetalert2/nuxt',
   ],
 
   // middleware: ['auth'],
