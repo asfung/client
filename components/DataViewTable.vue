@@ -321,12 +321,8 @@ export default {
 
         formData.append('nama', this.editedItem.nama);
         formData.append('jenis_kelamin', this.editedItem.jenis_kelamin);
-
-        if (this.editedItem.provinsi) {
-          formData.append('provinsi', this.editedItem.provinsi.name);
-          formData.append('provinsiId', this.editedItem.provinsi.id);
-        }
-
+        formData.append('provinsi', this.editedItem.provinsi.name);
+        formData.append('provinsiId', this.editedItem.provinsi.id);
         formData.append('agama', this.editedItem.agama);
         formData.append('posisi', this.editedItem.posisi);
         formData.append('gaji', this.editedItem.gaji);
