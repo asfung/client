@@ -78,7 +78,7 @@
           <v-card-text>
             <v-text-field v-model="editedItem.id" label="No" readonly></v-text-field>
             <p>{{ editedItem.file }}</p>
-            <v-file-input v-model="editedItem.file" label="Upload Image" accept="image/*"></v-file-input>
+            <v-file-input v-model="newItem.file" label="Upload Image" accept="image/*"></v-file-input> <!-- masih menggunakan props newItem --> 
             <v-text-field v-model="editedItem.nama" label="Nama"></v-text-field>
             <!-- <v-text-field v-model="editedItem.jenis_kelamin" label="Jenis Kelamin"></v-text-field> -->
             <v-select v-model="editedItem.jenis_kelamin" :items="genderOptions" label="Jenis Kelamin"></v-select>
@@ -314,7 +314,7 @@ export default {
         // https://stackoverflow.com/questions/74471540/multipart-form-data-not-working-on-axios-put-request 
         formData.append('_method', 'put');
 
-        formData.append('file', this.editedItem.file);
+        formData.append('file', this.newItem.file); // masih menggunakan props newItem
         formData.append('nama', this.editedItem.nama);
         formData.append('jenis_kelamin', this.editedItem.jenis_kelamin);
         formData.append('provinsi', this.editedItem.provinsi);
