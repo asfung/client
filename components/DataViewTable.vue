@@ -321,8 +321,12 @@ export default {
 
         formData.append('nama', this.editedItem.nama);
         formData.append('jenis_kelamin', this.editedItem.jenis_kelamin);
-        formData.append('provinsi', this.editedItem.provinsi.name);
-        formData.append('provinsiId', this.editedItem.provinsi.id);
+
+        if(this.editedItem.provinsi){
+          formData.append('provinsi', this.editedItem.provinsi.name);
+          formData.append('provinsiId', this.editedItem.provinsi.id);
+        }
+        
         formData.append('agama', this.editedItem.agama);
         formData.append('posisi', this.editedItem.posisi);
         formData.append('gaji', this.editedItem.gaji);
@@ -338,10 +342,14 @@ export default {
         // edit pada editedItem aray
         if (response.status === 200) {
           const index = this.items.findIndex((item) => item.id === this.editedItem.id);
-          if (index !== -1) {
-            this.$set(this.items, index, { ...this.editedItem });
-            // this.$set(this.items, index, { ...this.items[index], ...this.editedItem });
-          }
+          console.log(this.editedItem.provinsi)
+          this.findAll()
+          console.log(this.editedItem.provinsi)
+          // if (index !== -1) {
+          //   this.$set(this.items, index, { ...this.editedItem });
+          //   console.log(this.editedItem.provinsi)
+          //   // this.$set(this.items, index, { ...this.items[index], ...this.editedItem });
+          // }
         this.closeEditItemDialog();
         } else {
           console.error('gagal edit pegawai');
@@ -374,6 +382,7 @@ export default {
   mounted(){
     this.findAll()
     this.loadProvinces();
+    console.log(this.editedItem.provinsi)
     // this.addPegawai()
     // this.deletePegawai()
   }
