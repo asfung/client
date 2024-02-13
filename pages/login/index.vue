@@ -69,6 +69,7 @@
   import Swal from 'vue-sweetalert2'
   export default {
     layout: 'loginLayout',
+    middleware: ['login'],
     //not working
     // css: [
     //   '@/assets/login.css'

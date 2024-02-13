@@ -53,8 +53,8 @@
             <v-autocomplete
               v-model="newItem.provinsi"
               :items="provinceOptions"
-              item-text="value.name"
-              item-value="value"
+              item-text="name"
+              item-value="name"
               label="Pilih Provinsi"
               outlined
               dense
@@ -87,8 +87,8 @@
             <v-autocomplete
               v-model="editedItem.provinsi"
               :items="provinceOptions"
-              item-text="value.name"
-              item-value="value"
+              item-text="name"
+              item-value="name"
               label="Pilih Provinsi"
               outlined
               dense
@@ -150,7 +150,7 @@ export default {
         id: "",
         nama: "",
         jenis_kelamin: "",
-        provinsi: null,
+        provinsi: "",
         agama: "",
         posisi: "",
         gaji: "",
@@ -160,7 +160,7 @@ export default {
         id: 0,
         nama: "",
         jenis_kelamin: "",
-        provinsi: null,
+        provinsi: "",
         agama: "",
         posisi: "",
         gaji: "",
@@ -202,7 +202,6 @@ export default {
     openEditItemDialog(item) {
       this.editedItem = { ...item };
 
-      
       // this.editedItem = JSON.parse(JSON.stringify(item));
       // console.log(this.editedItem.file)
       this.editItemDialog = true;
@@ -263,8 +262,8 @@ export default {
         formData.append('file', this.newItem.file);
         formData.append('nama', this.newItem.nama);
         formData.append('jenis_kelamin', this.newItem.jenis_kelamin);
-        formData.append('provinsi', this.newItem.provinsi.name);
-        formData.append('provinsiId', this.newItem.provinsi.id);
+        formData.append('provinsi', this.newItem.provinsi);
+        // formData.append('provinsiId', this.newItem.provinsi.id);
         formData.append('agama', this.newItem.agama);
         formData.append('posisi', this.newItem.posisi);
         formData.append('gaji', this.newItem.gaji);
@@ -315,18 +314,10 @@ export default {
         // https://stackoverflow.com/questions/74471540/multipart-form-data-not-working-on-axios-put-request 
         formData.append('_method', 'put');
 
-        if (this.editedItem.file) {
-          formData.append('file', new File([this.editedItem.file], this.editedItem.file.name));
-        }
-
+        formData.append('file', this.editedItem.file);
         formData.append('nama', this.editedItem.nama);
         formData.append('jenis_kelamin', this.editedItem.jenis_kelamin);
-
-        if(this.editedItem.provinsi){
-          formData.append('provinsi', this.editedItem.provinsi.name);
-          formData.append('provinsiId', this.editedItem.provinsi.id);
-        }
-        
+        formData.append('provinsi', this.editedItem.provinsi);
         formData.append('agama', this.editedItem.agama);
         formData.append('posisi', this.editedItem.posisi);
         formData.append('gaji', this.editedItem.gaji);
@@ -339,25 +330,20 @@ export default {
           }
         });
 
+        console.log(this.editedItem.file)
         // edit pada editedItem aray
         if (response.status === 200) {
           const index = this.items.findIndex((item) => item.id === this.editedItem.id);
-          console.log(this.editedItem.provinsi)
-          this.findAll()
-          console.log(this.editedItem.provinsi)
-          // if (index !== -1) {
-          //   this.$set(this.items, index, { ...this.editedItem });
-          //   console.log(this.editedItem.provinsi)
-          //   // this.$set(this.items, index, { ...this.items[index], ...this.editedItem });
-          // }
+          if (index !== -1) {
+            this.findAll()
+            this.$set(this.items, index, { ...this.editedItem });
+            // this.$set(this.items, index, { ...this.items[index], ...this.editedItem });
+          }
         this.closeEditItemDialog();
         } else {
           console.error('gagal edit pegawai');
         }
-
-        // this.$set(this.items, index, { ...this.editedItem });
-        // this.closeEditItemDialog();   
-      }catch(err){
+      }catch(err){  
         console.info(err)
       }
     },
@@ -365,11 +351,8 @@ export default {
     async loadProvinces() {
       try {
         const response = await this.$axios.get('http://localhost:8000/api/provinces');
-        // this.provinceOptions = response.data;
-        this.provinceOptions = response.data.map(province => ({
-          name: province.name,
-          value: province, 
-        }));
+        this.provinceOptions = response.data;
+
       } catch (error) {
         console.error('Error loading provinces:', error);
       }
@@ -382,7 +365,6 @@ export default {
   mounted(){
     this.findAll()
     this.loadProvinces();
-    console.log(this.editedItem.provinsi)
     // this.addPegawai()
     // this.deletePegawai()
   }
