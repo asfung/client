@@ -1,6 +1,6 @@
 <template>
   <v-card elevation="5" height="400" width="400" outlined class="form-login">
-    <v-card-title> Login </v-card-title>
+    <v-card-title> Register </v-card-title>
 
     <v-card-text class="">
       <v-text-field

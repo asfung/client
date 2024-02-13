@@ -19,7 +19,7 @@
             </td>
             <td>{{ props.item.nama }}</td>
             <td>{{ props.item.jenis_kelamin }}</td>
-            <td>{{ props.item.kota }}</td>
+            <td>{{ props.item.provinsi }}</td>
             <td>{{ props.item.agama }}</td>
             <td>{{ props.item.posisi }}</td>
             <td>{{ props.item.gaji }}</td>
@@ -44,12 +44,22 @@
           <v-card-title>New Item</v-card-title>
           <v-card-text>
             <!-- <v-text-field v-model="newItem.id" label="No"></v-text-field> -->
-            <!-- <p>{{ newItem.file }}</p> -->
+            <!-- <p>{{ this.selectedProvince }}</p> -->
+            <!-- <p>{{ this.provinceOptions }}</p> -->
             <v-file-input v-model="newItem.file" label="Upload Image" accept="image/*"></v-file-input>
             <v-text-field v-model="newItem.nama" label="Nama" required></v-text-field>
             <!-- <v-text-field v-model="newItem.jenis_kelamin" label="Jenis Kelamin"></v-text-field> -->
             <v-select v-model="newItem.jenis_kelamin" :items="genderOptions" label="Jenis Kelamin"></v-select>
-            <v-text-field v-model="newItem.kota" label="Kota"></v-text-field>
+            <v-autocomplete
+              v-model="newItem.provinsi"
+              :items="provinceOptions"
+              item-text="value.name"
+              item-value="value"
+              label="Pilih Provinsi"
+              outlined
+              dense
+            ></v-autocomplete>
+            <!-- <v-text-field v-model="newItem.provinsi" label="provinsi"></v-text-field> -->
             <v-text-field v-model="newItem.agama" label="Agama"></v-text-field>
             <v-text-field v-model="newItem.posisi" label="Posisi Kerja"></v-text-field>
             <v-text-field v-model="newItem.gaji" label="Salary" type="number"></v-text-field>
@@ -67,11 +77,22 @@
           <v-card-title>Edit Item</v-card-title>
           <v-card-text>
             <v-text-field v-model="editedItem.id" label="No" readonly></v-text-field>
+            <p>{{ editedItem.file }}</p>
             <v-file-input v-model="editedItem.file" label="Upload Image" accept="image/*"></v-file-input>
             <v-text-field v-model="editedItem.nama" label="Nama"></v-text-field>
             <!-- <v-text-field v-model="editedItem.jenis_kelamin" label="Jenis Kelamin"></v-text-field> -->
             <v-select v-model="editedItem.jenis_kelamin" :items="genderOptions" label="Jenis Kelamin"></v-select>
-            <v-text-field v-model="editedItem.kota" label="Kota"></v-text-field>
+            <!-- <v-text-field v-model="editedItem.provinsi" label="provinsi"></v-text-field> -->
+            <p>{{ editedItem.provinsi }}</p>
+            <v-autocomplete
+              v-model="editedItem.provinsi"
+              :items="provinceOptions"
+              item-text="value.name"
+              item-value="value"
+              label="Pilih Provinsi"
+              outlined
+              dense
+            ></v-autocomplete>
             <v-text-field v-model="editedItem.agama" label="Agama"></v-text-field>
             <v-text-field v-model="editedItem.posisi" label="Posisi Kerja"></v-text-field>
             <v-text-field v-model="editedItem.gaji" label="Salary" type="number"></v-text-field>
@@ -106,6 +127,7 @@ export default {
   layout: 'none',
   data() {
     return {
+      provinceOptions: [],
       deleteConfirmationDialog: false,
       itemToDeleteId: null,
       genderOptions: ['Laki-Laki', 'Perempuan'],
@@ -115,7 +137,7 @@ export default {
         { text: "Image", value: "file"},
         { text: "Nama", value: "nama" },
         { text: "Jenis Kelamin", value: "jenis_kelamin" },
-        { text: "Kota", value: "kota" },
+        { text: "Provinsi", value: "provinsi" },
         { text: "Agama", value: "agama" },
         { text: "Posisi Kerja", value: "posisi" },
         { text: "gaji", value: "salary" },
@@ -128,7 +150,7 @@ export default {
         id: "",
         nama: "",
         jenis_kelamin: "",
-        kota: "",
+        provinsi: null,
         agama: "",
         posisi: "",
         gaji: "",
@@ -138,7 +160,7 @@ export default {
         id: 0,
         nama: "",
         jenis_kelamin: "",
-        kota: "",
+        provinsi: null,
         agama: "",
         posisi: "",
         gaji: "",
@@ -160,7 +182,7 @@ export default {
     closeNewItemDialog() {
       this.newItemDialog = false;
       // clearing the form of new item after save new item
-      this.newItem = { id: "", file: "", nama: "", jenis_kelamin: "", kota: "", agama: "", posisi: "", gaji: "" };
+      this.newItem = { id: "", file: "", nama: "", jenis_kelamin: "", provinsi: "", agama: "", posisi: "", gaji: "" };
     },
     saveNewItem() {
       const nextId = this.items.length > 0 ? this.items[this.items.length - 1].id + 1 : 1;
@@ -170,7 +192,7 @@ export default {
         file: this.newItem.file,
         nama: this.newItem.nama,
         jenis_kelamin: this.newItem.jenis_kelamin,
-        kota: this.newItem.kota,
+        provinsi: this.newItem.provinsi,
         agama: this.newItem.agama,
         posisi: this.newItem.posisi,
         gaji: this.newItem.gaji,
@@ -179,6 +201,8 @@ export default {
     },
     openEditItemDialog(item) {
       this.editedItem = { ...item };
+
+      
       // this.editedItem = JSON.parse(JSON.stringify(item));
       // console.log(this.editedItem.file)
       this.editItemDialog = true;
@@ -239,7 +263,8 @@ export default {
         formData.append('file', this.newItem.file);
         formData.append('nama', this.newItem.nama);
         formData.append('jenis_kelamin', this.newItem.jenis_kelamin);
-        formData.append('kota', this.newItem.kota);
+        formData.append('provinsi', this.newItem.provinsi.name);
+        formData.append('provinsiId', this.newItem.provinsi.id);
         formData.append('agama', this.newItem.agama);
         formData.append('posisi', this.newItem.posisi);
         formData.append('gaji', this.newItem.gaji);
@@ -291,12 +316,17 @@ export default {
         formData.append('_method', 'put');
 
         if (this.editedItem.file) {
-            formData.append('file', new File([this.editedItem.file], this.editedItem.file.name));
+          formData.append('file', new File([this.editedItem.file], this.editedItem.file.name));
         }
 
         formData.append('nama', this.editedItem.nama);
         formData.append('jenis_kelamin', this.editedItem.jenis_kelamin);
-        formData.append('kota', this.editedItem.kota);
+
+        if (this.editedItem.provinsi) {
+          formData.append('provinsi', this.editedItem.provinsi.name);
+          formData.append('provinsiId', this.editedItem.provinsi.id);
+        }
+
         formData.append('agama', this.editedItem.agama);
         formData.append('posisi', this.editedItem.posisi);
         formData.append('gaji', this.editedItem.gaji);
@@ -328,12 +358,26 @@ export default {
       }
     },
 
+    async loadProvinces() {
+      try {
+        const response = await this.$axios.get('http://localhost:8000/api/provinces');
+        // this.provinceOptions = response.data;
+        this.provinceOptions = response.data.map(province => ({
+          name: province.name,
+          value: province, 
+        }));
+      } catch (error) {
+        console.error('Error loading provinces:', error);
+      }
+    },
+
     filterItems() {
 
     },
   },
   mounted(){
     this.findAll()
+    this.loadProvinces();
     // this.addPegawai()
     // this.deletePegawai()
   }
