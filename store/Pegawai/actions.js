@@ -23,7 +23,8 @@ export default{
     try {
       const token = localStorage.getItem('token');
       const formData = new FormData();
-      formData.append('file', newItem.file);
+      // formData.append('file', newItem.file);
+      formData.append('file', new File([newItem.file], newItem.file.name));
       formData.append('nama', newItem.nama);
       formData.append('jenis_kelamin', newItem.jenis_kelamin);
       formData.append('provinsi', newItem.provinsi);
