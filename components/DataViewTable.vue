@@ -189,9 +189,20 @@ export default {
     }),
 
     filteredItems() {
-      return this.dataPegawais.filter((pegawai) =>
-        pegawai.nama.toLowerCase().includes(this.search.toLowerCase())
-      );
+      // return this.dataPegawais.filter((pegawai) =>
+      //   pegawai.nama.toLowerCase().includes(this.search.toLowerCase())
+      // );
+      return this.dataPegawais.filter((pegawai) => {
+        const searchLowerCase = this.search.toLowerCase();
+        return (
+          pegawai.nama.toLowerCase().includes(searchLowerCase) ||
+          pegawai.jenis_kelamin.toLowerCase().includes(searchLowerCase) ||
+          pegawai.provinsi.toLowerCase().includes(searchLowerCase) ||
+          pegawai.agama.toLowerCase().includes(searchLowerCase) ||
+          pegawai.posisi.toLowerCase().includes(searchLowerCase) 
+        );
+      });
+
     },
 
     pages() {
