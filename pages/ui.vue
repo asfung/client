@@ -138,9 +138,9 @@ export default {
         // localStorage.setItem('token', newToken)
         console.log(`error: ${err}`)
         console.log('ada yang gk beres nih, silahkan login ulang')
-        localStorage.removeItem('token')
-        localStorage.removeItem('dataLogin')
-        window.location.href = "/login"
+        // localStorage.removeItem('token')
+        // localStorage.removeItem('dataLogin')
+        // window.location.href = "/login"
 
       }
 

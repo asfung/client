@@ -10,6 +10,7 @@
         </v-col>
       </v-row>
 
+      <!-- <p>{{ dataPegawais }}</p> -->
       <v-data-table :headers="headers" :items="filteredItems" item-key="id">
         <template v-slot:item="props">
           <tr>
@@ -123,6 +124,7 @@
 
 <script>
 import axios from 'axios'
+import { mapState } from 'vuex'
 export default {
   layout: 'none',
   data() {
@@ -132,6 +134,7 @@ export default {
       itemToDeleteId: null,
       genderOptions: ['Laki-Laki', 'Perempuan'],
       items: [],
+      pegawais: [],
       headers: [
         { text: "No", value: "id" },
         { text: "Image", value: "file"},
@@ -169,11 +172,16 @@ export default {
     };
   },
   computed: {
+    ...mapState({
+      dataPegawais: state => state.Pegawai.dataPegawais
+    }),
+
     filteredItems() {
-      return this.items.filter((item) =>
-        item.nama.toLowerCase().includes(this.search.toLowerCase())
+      return this.dataPegawais.filter((pegawai) =>
+        pegawai.nama.toLowerCase().includes(this.search.toLowerCase())
       );
     },
+      
   },
   methods: {
     openNewItemDialog() {
@@ -201,9 +209,6 @@ export default {
     },
     openEditItemDialog(item) {
       this.editedItem = { ...item };
-
-      // this.editedItem = JSON.parse(JSON.stringify(item));
-      // console.log(this.editedItem.file)
       this.editItemDialog = true;
     },
     closeEditItemDialog() {
@@ -235,25 +240,6 @@ export default {
     },
 
 
-    // kita gunakan api nya kaka
-    async findAll(){
-      try{
-        const token = localStorage.getItem('token')
-        const pegawais = await axios.get('http://localhost:8000/api/v1/pegawai', {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        
-        this.items = pegawais.data 
-      }catch(err){
-        console.log(err)
-        localStorage.removeItem('token')
-        console.log('harap login ulang')
-        window.location.href = "/login"
-      }
-    },
-    
     async addPegawai(){
       try{
         const token = localStorage.getItem('token')
@@ -276,7 +262,7 @@ export default {
         console.log(pegawaiTambah.data)
         // console.log(this.newItem.file)
         this.closeNewItemDialog();
-        this.findAll() // walaaahhh
+        // this.findAll() // walaaahhh
       }catch(err){
         console.log('gk berhasil ')
         console.log(err)
@@ -358,12 +344,30 @@ export default {
       }
     },
 
+    // vuex
+    async allPegawai(){
+      await this.$store.dispatch('Pegawai/findAll')
+    },
+
+    // async addPegawai() {
+    //   try {
+
+    //     await this.$store.dispatch('Pegawai/addPegawai', this.newItem);
+    //     this.closeNewItemDialog();
+    //     // this.findAll();
+    //     this.allPegawai()
+    //   } catch (err) {
+    //     console.log('gk berhasil ');
+    //     console.log(err);
+    //   }
+    // },
+
     filterItems() {
 
     },
   },
   mounted(){
-    this.findAll()
+    this.allPegawai()
     this.loadProvinces();
     // this.addPegawai()
     // this.deletePegawai()
