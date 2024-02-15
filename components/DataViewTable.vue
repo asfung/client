@@ -240,34 +240,34 @@ export default {
     },
 
 
-    async addPegawai(){
-      try{
-        const token = localStorage.getItem('token')
-        const formData = new FormData()
+    // async addPegawai(){
+    //   try{
+    //     const token = localStorage.getItem('token')
+    //     const formData = new FormData()
       
-        formData.append('file', this.newItem.file);
-        formData.append('nama', this.newItem.nama);
-        formData.append('jenis_kelamin', this.newItem.jenis_kelamin);
-        formData.append('provinsi', this.newItem.provinsi);
-        // formData.append('provinsiId', this.newItem.provinsi.id);
-        formData.append('agama', this.newItem.agama);
-        formData.append('posisi', this.newItem.posisi);
-        formData.append('gaji', this.newItem.gaji);
-        const pegawaiTambah = await axios.post('http://localhost:8000/api/v1/pegawai', formData, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data',
-          }
-        })
-        console.log(pegawaiTambah.data)
-        // console.log(this.newItem.file)
-        this.closeNewItemDialog();
-        // this.findAll() // walaaahhh
-      }catch(err){
-        console.log('gk berhasil ')
-        console.log(err)
-      }
-    },
+    //     formData.append('file', this.newItem.file);
+    //     formData.append('nama', this.newItem.nama);
+    //     formData.append('jenis_kelamin', this.newItem.jenis_kelamin);
+    //     formData.append('provinsi', this.newItem.provinsi);
+    //     // formData.append('provinsiId', this.newItem.provinsi.id);
+    //     formData.append('agama', this.newItem.agama);
+    //     formData.append('posisi', this.newItem.posisi);
+    //     formData.append('gaji', this.newItem.gaji);
+    //     const pegawaiTambah = await axios.post('http://localhost:8000/api/v1/pegawai', formData, {
+    //       headers: {
+    //         Authorization: `Bearer ${token}`,
+    //         'Content-Type': 'multipart/form-data',
+    //       }
+    //     })
+    //     console.log(pegawaiTambah.data)
+    //     // console.log(this.newItem.file)
+    //     this.closeNewItemDialog();
+    //     // this.findAll() // walaaahhh
+    //   }catch(err){
+    //     console.log('gk berhasil ')
+    //     console.log(err)
+    //   }
+    // },
 
     async deletePegawai(){
       try{
@@ -349,18 +349,18 @@ export default {
       await this.$store.dispatch('Pegawai/findAll')
     },
 
-    // async addPegawai() {
-    //   try {
+    async addPegawai() {
+      try {
 
-    //     await this.$store.dispatch('Pegawai/addPegawai', this.newItem);
-    //     this.closeNewItemDialog();
-    //     // this.findAll();
-    //     this.allPegawai()
-    //   } catch (err) {
-    //     console.log('gk berhasil ');
-    //     console.log(err);
-    //   }
-    // },
+        await this.$store.dispatch('Pegawai/addPegawai', this.newItem);
+        this.closeNewItemDialog();
+        // this.findAll();
+        this.allPegawai()
+      } catch (err) {
+        console.log('gk berhasil ');
+        console.log(err);
+      }
+    },
 
     filterItems() {
 
