@@ -2,7 +2,7 @@ export default{
   async findAll({ commit }){
     try{
       const token = localStorage.getItem('token')
-      const pegawais = await this.$axios.get('http://localhost:8000/api/v1/pegawai', {
+      const pegawais = await this.$axios.get('api/v1/pegawai', {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -32,7 +32,7 @@ export default{
       formData.append('posisi', newItem.posisi);
       formData.append('gaji', newItem.gaji);
 
-      const pegawaiTambah = await this.$axios.post('http://localhost:8000/api/v1/pegawai', formData, {
+      const pegawaiTambah = await this.$axios.post('api/v1/pegawai', formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data',
@@ -44,6 +44,41 @@ export default{
     } catch (err) {
       console.log('gk berhasil from actions.js');
       console.log(err);
+    }
+  },
+
+  async deletePegawai({ commit }, id) {
+    try {
+      const token = localStorage.getItem('token');
+      await this.$axios.delete(`api/v1/pegawai/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      commit('DELETE_PEGAWAI', id);
+    } catch (err) {
+      console.error('Error deleting pegawai:', err);
+    }
+  },
+
+  async editPegawai({ commit }, { id, formData }) {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await this.$axios.post(`api/v1/pegawai/${id}`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      if (response.status === 200) {
+        commit('UPDATE_PEGAWAI', response.data);
+      }else{
+        console.log('gagal mengedit')
+      }
+    } catch (err) {
+      console.error('Error editing pegawai:', err);
     }
   },
 

@@ -11,7 +11,12 @@
       </v-row>
 
       <!-- <p>{{ dataPegawais }}</p> -->
-      <v-data-table :headers="headers" :items="filteredItems" item-key="id">
+      <v-data-table 
+      :headers="headers" 
+      :items="filteredItems" 
+      item-key="id"
+      :options.sync="pagination"
+      >
         <template v-slot:item="props">
           <tr>
             <td>{{ props.item.id }}</td>
@@ -39,14 +44,21 @@
         </template>
       </v-data-table>
 
+      <div class="text-xs-center pt-2 md4 lg4">
+        <v-pagination
+          @input="paginationChangeHandler"
+          :value="pagination.page"
+          :length="pages"
+          :total-visible="pages"
+        ></v-pagination>
+      </div>
+
       <!-- New Item Dialog POP UP -->
       <v-dialog v-model="newItemDialog" max-width="600px">
         <v-card>
           <v-card-title>New Item</v-card-title>
           <v-card-text>
             <!-- <v-text-field v-model="newItem.id" label="No"></v-text-field> -->
-            <!-- <p>{{ this.selectedProvince }}</p> -->
-            <!-- <p>{{ this.provinceOptions }}</p> -->
             <v-file-input v-model="newItem.file" label="Upload Image" accept="image/*"></v-file-input>
             <v-text-field v-model="newItem.nama" label="Nama" required></v-text-field>
             <!-- <v-text-field v-model="newItem.jenis_kelamin" label="Jenis Kelamin"></v-text-field> -->
@@ -123,12 +135,12 @@
 </template>
 
 <script>
-import axios from 'axios'
 import { mapState } from 'vuex'
 export default {
   layout: 'none',
   data() {
     return {
+      pagination: { totalItems: 0, rowsPerPage: 6, page: 1 },
       provinceOptions: [],
       deleteConfirmationDialog: false,
       itemToDeleteId: null,
@@ -181,31 +193,35 @@ export default {
         pegawai.nama.toLowerCase().includes(this.search.toLowerCase())
       );
     },
-      
+
+    pages() {
+      if (
+        this.pagination.rowsPerPage == null ||
+        this.pagination.totalItems == null
+      ) {
+        return 0;
+      }
+      return Math.ceil(
+        this.pagination.totalItems / this.pagination.rowsPerPage
+      );
+    }
+
   },
   methods: {
+    // pagination
+    paginationChangeHandler(pageNumber) {
+      this.pagination.page = pageNumber;
+      this.allPegawai(); 
+    },
+    // pagination close
+
     openNewItemDialog() {
       this.newItemDialog = true;
     },
     closeNewItemDialog() {
       this.newItemDialog = false;
       // clearing the form of new item after save new item
-      this.newItem = { id: "", file: "", nama: "", jenis_kelamin: "", provinsi: "", agama: "", posisi: "", gaji: "" };
-    },
-    saveNewItem() {
-      const nextId = this.items.length > 0 ? this.items[this.items.length - 1].id + 1 : 1;
-      this.items.push({
-        // id: this.newItem.id,
-        id: nextId,
-        file: this.newItem.file,
-        nama: this.newItem.nama,
-        jenis_kelamin: this.newItem.jenis_kelamin,
-        provinsi: this.newItem.provinsi,
-        agama: this.newItem.agama,
-        posisi: this.newItem.posisi,
-        gaji: this.newItem.gaji,
-      });
-      this.closeNewItemDialog();
+      this.newItem = { id: "", file: null, nama: "", jenis_kelamin: "", provinsi: "", agama: "", posisi: "", gaji: "" };
     },
     openEditItemDialog(item) {
       this.editedItem = { ...item };
@@ -214,11 +230,7 @@ export default {
     closeEditItemDialog() {
       this.editItemDialog = false;
     },
-    saveEditedItem() {
-      const index = this.items.findIndex((item) => item.id === this.editedItem.id);
-      this.$set(this.items, index, { ...this.editedItem });
-      this.closeEditItemDialog();
-    },
+
     confirmDelete(itemId) {
       this.itemToDeleteId = itemId;
       this.deleteConfirmationDialog = true;
@@ -237,101 +249,6 @@ export default {
     cancelDelete() {
       this.deleteConfirmationDialog = false;
       this.itemToDeleteId = null;
-    },
-
-
-    // async addPegawai(){
-    //   try{
-    //     const token = localStorage.getItem('token')
-    //     const formData = new FormData()
-      
-    //     formData.append('file', this.newItem.file);
-    //     formData.append('nama', this.newItem.nama);
-    //     formData.append('jenis_kelamin', this.newItem.jenis_kelamin);
-    //     formData.append('provinsi', this.newItem.provinsi);
-    //     // formData.append('provinsiId', this.newItem.provinsi.id);
-    //     formData.append('agama', this.newItem.agama);
-    //     formData.append('posisi', this.newItem.posisi);
-    //     formData.append('gaji', this.newItem.gaji);
-    //     const pegawaiTambah = await axios.post('http://localhost:8000/api/v1/pegawai', formData, {
-    //       headers: {
-    //         Authorization: `Bearer ${token}`,
-    //         'Content-Type': 'multipart/form-data',
-    //       }
-    //     })
-    //     console.log(pegawaiTambah.data)
-    //     // console.log(this.newItem.file)
-    //     this.closeNewItemDialog();
-    //     // this.findAll() // walaaahhh
-    //   }catch(err){
-    //     console.log('gk berhasil ')
-    //     console.log(err)
-    //   }
-    // },
-
-    async deletePegawai(){
-      try{
-        const token = localStorage.getItem('token')
-        const response = await axios.delete(`http://localhost:8000/api/v1/pegawai/${this.itemToDeleteId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            // 'Content-Type': 'multipart/form-data',
-          }
-        });
-      if (response.status === 200) {
-        console.log('terhapus..');
-        const index = this.items.findIndex((item) => item.id === this.itemToDeleteId);
-        if (index !== -1) {
-          this.items.splice(index, 1);
-        }
-        this.cancelDelete();
-      } else {
-        console.error('gagal delete');
-      }
-      }catch(err){
-        // console.log('gk bisa dihapus kocakk')
-        console.info(err)
-      }
-    },
-
-    async editById(){
-      try{
-        const formData = new FormData()
-        // https://stackoverflow.com/questions/74471540/multipart-form-data-not-working-on-axios-put-request 
-        formData.append('_method', 'put');
-
-        formData.append('file', this.newItem.file); // masih menggunakan props newItem
-        formData.append('nama', this.editedItem.nama);
-        formData.append('jenis_kelamin', this.editedItem.jenis_kelamin);
-        formData.append('provinsi', this.editedItem.provinsi);
-        formData.append('agama', this.editedItem.agama);
-        formData.append('posisi', this.editedItem.posisi);
-        formData.append('gaji', this.editedItem.gaji);
-
-        const token = localStorage.getItem('token');
-        const response = await axios.post(`http://localhost:8000/api/v1/pegawai/${this.editedItem.id}`, formData ,{
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data',
-          }
-        });
-
-        console.log(this.editedItem.file)
-        // edit pada editedItem aray
-        if (response.status === 200) {
-          const index = this.items.findIndex((item) => item.id === this.editedItem.id);
-          if (index !== -1) {
-            this.findAll()
-            this.$set(this.items, index, { ...this.editedItem });
-            // this.$set(this.items, index, { ...this.items[index], ...this.editedItem });
-          }
-        this.closeEditItemDialog();
-        } else {
-          console.error('gagal edit pegawai');
-        }
-      }catch(err){  
-        console.info(err)
-      }
     },
 
     async loadProvinces() {
@@ -354,11 +271,39 @@ export default {
 
         await this.$store.dispatch('Pegawai/addPegawai', this.newItem);
         this.closeNewItemDialog();
-        // this.findAll();
         this.allPegawai()
       } catch (err) {
         console.log('gk berhasil ');
         console.log(err);
+      }
+    },
+
+    async deletePegawai() {
+    try {
+      await this.$store.dispatch('Pegawai/deletePegawai', this.itemToDeleteId);
+      this.cancelDelete();
+      }catch (err) {
+        console.error('error:', err);
+      }
+    },
+
+    async editById() {
+    try {
+        const formData = new FormData();
+        formData.append('_method', 'put');
+        formData.append('file', this.newItem.file);
+        formData.append('nama', this.editedItem.nama);
+        formData.append('jenis_kelamin', this.editedItem.jenis_kelamin);
+        formData.append('provinsi', this.editedItem.provinsi);
+        formData.append('agama', this.editedItem.agama);
+        formData.append('posisi', this.editedItem.posisi);
+        formData.append('gaji', this.editedItem.gaji);
+
+        await this.$store.dispatch('Pegawai/editPegawai', { id: this.editedItem.id, formData });
+        this.allPegawai()
+        this.closeEditItemDialog();
+      } catch (err) {
+        console.error('error:', err);
       }
     },
 
@@ -371,6 +316,12 @@ export default {
     this.loadProvinces();
     // this.addPegawai()
     // this.deletePegawai()
-  }
+  },
+
+  watch: {
+    dataPegawais() {
+      this.pagination.totalItems = this.dataPegawais.length;
+    }
+  },
 };
 </script>

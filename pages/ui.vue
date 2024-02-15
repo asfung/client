@@ -61,7 +61,7 @@
         <v-row>
           <v-col cols="12">
             <v-card v-if="selectedIndex === 0"><DataViewTable /></v-card>
-            <v-card v-if="selectedIndex === 1" :height="300">Ntahlah...</v-card>
+            <v-card v-if="selectedIndex === 1"><PagingPage /></v-card>
           </v-col>
         </v-row>
       </v-container>
