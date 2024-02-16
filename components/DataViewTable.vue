@@ -73,8 +73,26 @@
               dense
             ></v-autocomplete>
             <!-- <v-text-field v-model="newItem.provinsi" label="provinsi"></v-text-field> -->
-            <v-text-field v-model="newItem.agama" label="Agama"></v-text-field>
-            <v-text-field v-model="newItem.posisi" label="Posisi Kerja"></v-text-field>
+            <!-- <v-text-field v-model="newItem.agama" label="Agama"></v-text-field> -->
+            <v-autocomplete
+              v-model="newItem.agama"
+              :items="religionOptions"
+              item-text="agama"
+              item-value="agama"
+              label="Agama"
+              outlined
+              dense
+            ></v-autocomplete>
+            <!-- <v-text-field v-model="newItem.posisi" label="Posisi Kerja"></v-text-field> -->
+            <v-autocomplete
+              v-model="newItem.posisi"
+              :items="posisiOptions"
+              item-text="name"
+              item-value="name"
+              label="Posisi Kerja"
+              outlined
+              dense
+            ></v-autocomplete>
             <v-text-field v-model="newItem.gaji" label="Salary" type="number"></v-text-field>
           </v-card-text>
           <v-card-actions>
@@ -106,8 +124,26 @@
               outlined
               dense
             ></v-autocomplete>
-            <v-text-field v-model="editedItem.agama" label="Agama"></v-text-field>
-            <v-text-field v-model="editedItem.posisi" label="Posisi Kerja"></v-text-field>
+            <!-- <v-text-field v-model="editedItem.agama" label="Agama"></v-text-field> -->
+            <v-autocomplete
+              v-model="editedItem.agama"
+              :items="religionOptions"
+              item-text="agama"
+              item-value="agama"
+              label="Agama"
+              outlined
+              dense
+            ></v-autocomplete>
+            <!-- <v-text-field v-model="editedItem.posisi" label="Posisi Kerja"></v-text-field> -->
+            <v-autocomplete
+              v-model="editedItem.posisi"
+              :items="posisiOptions"
+              item-text="name"
+              item-value="name"
+              label="Posisi Kerja"
+              outlined
+              dense
+            ></v-autocomplete>
             <v-text-field v-model="editedItem.gaji" label="Salary" type="number"></v-text-field>
           </v-card-text>
           <v-card-actions>
@@ -141,6 +177,8 @@ export default {
   data() {
     return {
       pagination: { totalItems: 0, rowsPerPage: 6, page: 1 },
+      posisiOptions: [],
+      religionOptions: [],
       provinceOptions: [],
       deleteConfirmationDialog: false,
       itemToDeleteId: null,
@@ -272,6 +310,25 @@ export default {
       }
     },
 
+    async loadAgama() {
+      try {
+        const response = await this.$axios.get('http://localhost:8000/api/religions');
+        this.religionOptions = response.data;
+
+      } catch (error) {
+        console.error('Error loading provinces:', error);
+      }
+    },
+
+    async loadPosisi(){
+      try{
+        const response = await this.$axios.get('http://localhost:8000/api/careers')
+        this.posisiOptions = response.data
+      }catch(err){
+        console.log(err)
+      }
+    },
+
     // vuex
     async allPegawai(){
       await this.$store.dispatch('Pegawai/findAll')
@@ -324,7 +381,9 @@ export default {
   },
   mounted(){
     this.allPegawai()
-    this.loadProvinces();
+    this.loadProvinces()
+    this.loadAgama()
+    this.loadPosisi()
     // this.addPegawai()
     // this.deletePegawai()
   },
