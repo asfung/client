@@ -1,3 +1,24 @@
+<<<<<<< HEAD
 - button action for update and delete not appear
 - customizing the ui
 - adding login button in top bar right
+=======
+- button action for update and delete not appear => DONE
+- customizing the ui => DONE
+- adding login button in top bar right => DONE
+
+todo
+make the api can accept with form data not only from json 
+https://stackoverflow.com/questions/74471540/multipart-form-data-not-working-on-axios-put-request
+
+
+so basiccaly we use the provinsi in newItem and editedItem is provinsi[] yang dimana itu adalah isi dari selectedProvince yaknit dengan json
+
+{
+  id: ??,
+  code: ??,
+  name: ??
+}
+
+jadi selectedProvinsi akan dijadikan provinsi pada newItem dan editedItem 
+>>>>>>> stuck-step

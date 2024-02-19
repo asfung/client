@@ -68,6 +68,7 @@
   import axios from 'axios';
   export default {
     layout: 'loginLayout',
+    middleware: ['login'],
     //not working
     // css: [
     //   '@/assets/login.css'

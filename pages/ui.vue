@@ -19,6 +19,9 @@
           </v-list-item-content>
         </v-list-item>
       </v-list>
+
+      <!-- <v-treeview :items="treeItems" activatable @update:active="treeViewHandler"></v-treeview> -->
+
     </v-navigation-drawer>
 
     <!-- TOP BAR -->
@@ -61,7 +64,12 @@
         <v-row>
           <v-col cols="12">
             <v-card v-if="selectedIndex === 0"><DataViewTable /></v-card>
-            <v-card v-if="selectedIndex === 1" :height="300">Ntahlah...</v-card>
+            <!-- <v-card v-if="selectedIndex === 1"><PagingPage /></v-card>
+            <v-card v-if="selectedIndex === 2"><TestingTree /></v-card> -->
+            <!-- <v-card v-if="selectedIndex === 'P1'"><h1>hello world from TECHNOLOGY</h1></v-card>
+            <v-card v-if="selectedIndex === 'P2'"><h1>Hello World from BUSINESS</h1></v-card>
+            <v-card v-if="selectedIndex === 'P3'"><h1>Hello World from HUMAN RESOURCE</h1></v-card> -->
+            
           </v-col>
         </v-row>
       </v-container>
@@ -75,11 +83,16 @@ export default {
   middleware: ['auth'],
   data() {
     return {
+      careersParentMap: new Map(), 
+      selectedNode: null,
+      treeItems: [],
+      dataLogin: "",
       drawer: true,
       selectedIndex: 0, 
       items: [
         { title: 'Data Table', icon: 'mdi-view-dashboard' },
-        { title: 'Ntah', icon: 'mdi-settings' },
+        // { title: 'Ntah', icon: 'mdi-settings' },
+        // { title: 'Testing Tree', icon: 'mdi-settings' },
       ]
     };
   },
@@ -115,9 +128,20 @@ export default {
 
         console.log('ada yang gk beres nih')
         console.log(`error: ${err}`)
-      }
+        console.log('ada yang gk beres nih, silahkan login ulang')
+        // localStorage.removeItem('token')
+        // localStorage.removeItem('dataLogin')
+        // window.location.href = "/login"
 
-    }
+      }
+    },
+
+    
+
+  },
+  mounted(){
+    const dataLoginStorage = localStorage.getItem('dataLogin')
+    this.dataLogin = JSON.parse(dataLoginStorage)    
   }
 };
 </script>

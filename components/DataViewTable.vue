@@ -3,6 +3,8 @@
     <v-container>
       <v-row>
         <v-col>
+        </v-col>
+        <v-col>
           <v-text-field v-model="search" label="Search" @input="filterItems" />
         </v-col>
         <v-col class="text-right">
@@ -10,30 +12,57 @@
         </v-col>
       </v-row>
 
-      <v-data-table :headers="headers" :items="filteredItems" item-key="id">
-        <template v-slot:item="props">
-          <tr>
-            <td>{{ props.item.id }}</td>
-            <td>{{ props.item.nama }}</td>
-            <td>{{ props.item.jenis_kelamin }}</td>
-            <td>{{ props.item.kota }}</td>
-            <td>{{ props.item.agama }}</td>
-            <td>{{ props.item.posisi }}</td>
-            <td>{{ props.item.gaji }}</td>
-            <td>
-              <v-btn @click="openEditItemDialog(props.item)" icon>
-                <v-icon>mdi-pencil</v-icon>
-              </v-btn>
-              <v-btn @click="confirmDelete(props.item.id)" icon>
-                <v-icon>mdi-delete</v-icon>
-              </v-btn>
-              <!-- <v-btn @click="deletePegawai(props.item.id)" icon>
-                <v-icon>mdi-delete</v-icon>
-              </v-btn> -->
-            </td>
-          </tr>
-        </template>
-      </v-data-table>
+      <v-row>
+        <!-- treeview -->
+        <v-col>
+          <TreePegawai />
+        </v-col>
+
+        <v-col>
+      <!-- <p>{{ dataPegawais }}</p> -->
+        <v-data-table 
+        :headers="headers" 
+        :items="filteredItems" 
+        item-key="id"
+        :options.sync="pagination"
+        >
+          <template v-slot:item="props">
+            <tr>
+              <td>{{ props.item.id }}</td>
+              <td>
+                <img :src="`http://localhost:8000/storage/${props.item.file}`" alt="gambar" style="max-width: 50px; max-height: 50px;">
+              </td>
+              <td>{{ props.item.nama }}</td>
+              <td>{{ props.item.jenis_kelamin }}</td>
+              <td>{{ props.item.provinsi }}</td>
+              <td>{{ props.item.agama }}</td>
+              <td>{{ props.item.posisi }}</td>
+              <td>{{ props.item.gaji }}</td>
+              <td>
+                <v-btn @click="openEditItemDialog(props.item)" icon>
+                  <v-icon>mdi-pencil</v-icon>
+                </v-btn>
+                <v-btn @click="confirmDelete(props.item.id)" icon>
+                  <v-icon>mdi-delete</v-icon>
+                </v-btn>
+                <!-- <v-btn @click="deletePegawai(props.item.id)" icon>
+                  <v-icon>mdi-delete</v-icon>
+                </v-btn> -->
+              </td>
+            </tr>
+          </template>
+        </v-data-table>
+      </v-col>
+    </v-row>
+
+      <div class="text-xs-center pt-2 md4 lg4">
+        <v-pagination
+          @input="paginationChangeHandler"
+          :value="pagination.page"
+          :length="pages"
+          :total-visible="pages"
+        ></v-pagination>
+      </div>
 
       <!-- New Item Dialog POP UP -->
       <v-dialog v-model="newItemDialog" max-width="600px">
@@ -41,12 +70,38 @@
           <v-card-title>New Item</v-card-title>
           <v-card-text>
             <!-- <v-text-field v-model="newItem.id" label="No"></v-text-field> -->
+            <p>{{ newItem.file }}</p>
+            <v-file-input v-model="newItem.file" label="Upload Image" accept="image/*"></v-file-input>
             <v-text-field v-model="newItem.nama" label="Nama" required></v-text-field>
             <!-- <v-text-field v-model="newItem.jenis_kelamin" label="Jenis Kelamin"></v-text-field> -->
             <v-select v-model="newItem.jenis_kelamin" :items="genderOptions" label="Jenis Kelamin"></v-select>
-            <v-text-field v-model="newItem.kota" label="Kota"></v-text-field>
-            <v-text-field v-model="newItem.agama" label="Agama"></v-text-field>
-            <v-text-field v-model="newItem.posisi" label="Posisi Kerja"></v-text-field>
+            <v-autocomplete
+              v-model="newItem.provinsi"
+              :items="provinceOptions"
+              item-text="name"
+              item-value="name"
+              label="Pilih Provinsi"
+              outlined
+              dense
+            ></v-autocomplete>
+            <v-autocomplete
+              v-model="newItem.agama"
+              :items="religionOptions"
+              item-text="agama"
+              item-value="agama"
+              label="Agama"
+              outlined
+              dense
+            ></v-autocomplete>
+            <v-autocomplete
+              v-model="newItem.posisi"
+              :items="posisiOptions"
+              item-text="name"
+              item-value="name"
+              label="Posisi Kerja"
+              outlined
+              dense
+            ></v-autocomplete>
             <v-text-field v-model="newItem.gaji" label="Salary" type="number"></v-text-field>
           </v-card-text>
           <v-card-actions>
@@ -62,12 +117,38 @@
           <v-card-title>Edit Item</v-card-title>
           <v-card-text>
             <v-text-field v-model="editedItem.id" label="No" readonly></v-text-field>
+            <v-file-input v-model="editedItem.file" label="Upload Image" accept="image/*"></v-file-input>
             <v-text-field v-model="editedItem.nama" label="Nama"></v-text-field>
-            <!-- <v-text-field v-model="editedItem.jenis_kelamin" label="Jenis Kelamin"></v-text-field> -->
             <v-select v-model="editedItem.jenis_kelamin" :items="genderOptions" label="Jenis Kelamin"></v-select>
-            <v-text-field v-model="editedItem.kota" label="Kota"></v-text-field>
-            <v-text-field v-model="editedItem.agama" label="Agama"></v-text-field>
-            <v-text-field v-model="editedItem.posisi" label="Posisi Kerja"></v-text-field>
+            <p>{{ editedItem.provinsi }}</p>
+            <v-autocomplete
+              v-model="editedItem.provinsi"
+              :items="provinceOptions"
+              item-text="name"
+              item-value="name"
+              label="Pilih Provinsi"
+              outlined
+              dense
+            ></v-autocomplete>
+            <v-autocomplete
+              v-model="editedItem.agama"
+              :items="religionOptions"
+              item-text="agama"
+              item-value="agama"
+              label="Agama"
+              outlined
+              dense
+            ></v-autocomplete>
+            <!-- <v-text-field v-model="editedItem.posisi" label="Posisi Kerja"></v-text-field> -->
+            <v-autocomplete
+              v-model="editedItem.posisi"
+              :items="posisiOptions"
+              item-text="name"
+              item-value="name"
+              label="Posisi Kerja"
+              outlined
+              dense
+            ></v-autocomplete>
             <v-text-field v-model="editedItem.gaji" label="Salary" type="number"></v-text-field>
           </v-card-text>
           <v-card-actions>
@@ -95,20 +176,25 @@
 </template>
 
 <script>
-import axios from 'axios'
+import { mapState } from 'vuex'
 export default {
   layout: 'none',
   data() {
     return {
+      pagination: { totalItems: 0, rowsPerPage: 6, page: 1 },
+      posisiOptions: [],
+      religionOptions: [],
+      provinceOptions: [],
       deleteConfirmationDialog: false,
       itemToDeleteId: null,
       genderOptions: ['Laki-Laki', 'Perempuan'],
       items: [],
+      pegawais: [],
       headers: [
         { text: "No", value: "id" },
         { text: "Nama", value: "nama" },
         { text: "Jenis Kelamin", value: "jenis_kelamin" },
-        { text: "Kota", value: "kota" },
+        { text: "Provinsi", value: "provinsi" },
         { text: "Agama", value: "agama" },
         { text: "Posisi Kerja", value: "posisi" },
         { text: "gaji", value: "salary" },
@@ -121,7 +207,7 @@ export default {
         id: "",
         nama: "",
         jenis_kelamin: "",
-        kota: "",
+        provinsi: "",
         agama: "",
         posisi: "",
         gaji: "",
@@ -130,7 +216,7 @@ export default {
         id: 0,
         nama: "",
         jenis_kelamin: "",
-        kota: "",
+        provinsi: "",
         agama: "",
         posisi: "",
         gaji: "",
@@ -138,26 +224,91 @@ export default {
     };
   },
   computed: {
+    ...mapState({
+      dataPegawais: state => state.Pegawai.dataPegawais
+    }),
+
     filteredItems() {
-      return this.items.filter((item) =>
-        item.nama.toLowerCase().includes(this.search.toLowerCase())
+      // return this.dataPegawais.filter((pegawai) =>
+      //   pegawai.nama.toLowerCase().includes(this.search.toLowerCase())
+      // );
+      if (!this.selectedCareerCode) {
+        return this.dataPegawais.filter((pegawai) => {
+          const searchLowerCase = this.search.toLowerCase();
+          return (
+            pegawai.nama.toLowerCase().includes(searchLowerCase) ||
+            pegawai.jenis_kelamin.toLowerCase().includes(searchLowerCase) ||
+            pegawai.provinsi.toLowerCase().includes(searchLowerCase) ||
+            pegawai.agama.toLowerCase().includes(searchLowerCase) ||
+            pegawai.posisi.toLowerCase().includes(searchLowerCase) 
+          );
+        });
+      }
+
+      return this.dataPegawais.filter((pegawai) =>
+        console.log('pegawai.id_posisi: ', pegawai.id_posisi) ||
+        console.log('selectedCareerCode', this.selectedCareerCode) ||
+        pegawai.id_posisi === this.selectedCareerCode 
       );
+
+      this.dataPegawais.forEach(pegawai => {
+        if(pegawai.id_posisi === this.selectedCareerCode){
+          console.log('angka nya')
+        }
+      });
+
     },
+
+    selectedCareerCode() {
+      return this.$store.getters['Pegawai/TreeFilter/selectedCareerCode'];
+    },
+    
+    // filteredItems() {
+    //   if (!this.selectedCareerCode) {
+    //     return this.dataPegawais;
+    //   }
+
+    //   // Filter the data based on the selected career code
+    //   return this.dataPegawais.filter((pegawai) =>
+    //     pegawai.id_posisi === this.selectedCareerCode
+    //   );
+    // },
+
+    pages() {
+      if (
+        this.pagination.rowsPerPage == null ||
+        this.pagination.totalItems == null
+      ) {
+        return 0;
+      }
+      return Math.ceil(
+        this.pagination.totalItems / this.pagination.rowsPerPage
+      );
+    }
+
   },
   methods: {
+    // pagination
+    paginationChangeHandler(pageNumber) {
+      this.pagination.page = pageNumber;
+      this.allPegawai(); 
+    },
+    // pagination close
+
     openNewItemDialog() {
       this.newItemDialog = true;
     },
     closeNewItemDialog() {
       this.newItemDialog = false;
       // clearing the form of new item after save new item
-      this.newItem = { id: "", nama: "", jenis_kelamin: "", kota: "", agama: "", posisi: "", gaji: "" };
+      this.newItem = { id: "", file: "", nama: "", jenis_kelamin: "", kota: "", agama: "", posisi: "", gaji: "" };
     },
     saveNewItem() {
       const nextId = this.items.length > 0 ? this.items[this.items.length - 1].id + 1 : 1;
       this.items.push({
         // id: this.newItem.id,
         id: nextId,
+        file: this.newItem.file,
         nama: this.newItem.nama,
         jenis_kelamin: this.newItem.jenis_kelamin,
         kota: this.newItem.kota,
@@ -174,11 +325,7 @@ export default {
     closeEditItemDialog() {
       this.editItemDialog = false;
     },
-    saveEditedItem() {
-      const index = this.items.findIndex((item) => item.id === this.editedItem.id);
-      this.$set(this.items, index, { ...this.editedItem });
-      this.closeEditItemDialog();
-    },
+
     confirmDelete(itemId) {
       this.itemToDeleteId = itemId;
       this.deleteConfirmationDialog = true;
@@ -203,34 +350,58 @@ export default {
     // kita gunakan api nya kaka
     async findAll(){
       try{
-        const pegawais = await axios.get('http://localhost:8000/api/v1/pegawai')
+        const token = localStorage.getItem('token')
+        const pegawais = await axios.get('http://localhost:8000/api/v1/pegawai', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        
         this.items = pegawais.data 
       }catch(err){
         console.log(err)
+        localStorage.removeItem('token')
+        console.log('harap login ulang')
+        window.location.href = "/login"
       }
     },
+    
     async addPegawai(){
       try{
-        const pegawaiTambah = await axios.post('http://localhost:8000/api/v1/pegawai', {
-          nama: this.newItem.nama,
-          jenis_kelamin: this.newItem.jenis_kelamin,
-          kota: this.newItem.kota,
-          agama: this.newItem.agama,
-          posisi: this.newItem.posisi,
-          gaji: this.newItem.gaji,
+        const token = localStorage.getItem('token')
+        const formData = new FormData()
+      
+        formData.append('file', this.newItem.file);
+        formData.append('nama', this.newItem.nama);
+        formData.append('jenis_kelamin', this.newItem.jenis_kelamin);
+        formData.append('kota', this.newItem.kota);
+        formData.append('agama', this.newItem.agama);
+        formData.append('posisi', this.newItem.posisi);
+        formData.append('gaji', this.newItem.gaji);
+        const pegawaiTambah = await axios.post('http://localhost:8000/api/v1/pegawai', formData, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',
+          }
         })
         console.log(pegawaiTambah.data)
-        this.findAll()  
+        // console.log(this.newItem.file)
         this.closeNewItemDialog();
+        this.findAll() // walaaahhh
       }catch(err){
-        console.log('gk berhasil ')
         console.log(err)
       }
     },
 
     async deletePegawai(){
       try{
-        const response = await axios.delete(`http://localhost:8000/api/v1/pegawai/${this.itemToDeleteId}`);
+        const token = localStorage.getItem('token')
+        const response = await axios.delete(`http://localhost:8000/api/v1/pegawai/${this.itemToDeleteId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            // 'Content-Type': 'multipart/form-data',
+          }
+        });
       if (response.status === 200) {
         console.log('terhapus..');
         const index = this.items.findIndex((item) => item.id === this.itemToDeleteId);
@@ -239,37 +410,46 @@ export default {
         }
         this.cancelDelete();
       } else {
-        console.error('Failed to delete pegawai');
+        console.error('gagal delete');
       }
       }catch(err){
-        console.log('gk bisa dihapus kocakk')
+        // console.log('gk bisa dihapus kocakk')
         console.info(err)
       }
     },
 
     async editById(){
       try{
+        const formData = new FormData()
+        // formData.append('file', this.editedItem.file);
+        formData.append('nama', this.editedItem.nama);
+        formData.append('jenis_kelamin', this.editedItem.jenis_kelamin);
+        formData.append('kota', this.editedItem.kota);
+        formData.append('agama', this.editedItem.agama);
+        formData.append('posisi', this.editedItem.posisi);
+        formData.append('gaji', this.editedItem.gaji);
+        
+        if (this.editedItem.file instanceof File) {
+          formData.append('file', this.editedItem.file);
+        }
+
         const token = localStorage.getItem('token');
-        const response = await axios.put(`http://localhost:8000/api/v1/pegawai/${this.editedItem.id}`, 
-        {
-          nama: this.editedItem.nama,
-          jenis_kelamin: this.editedItem.jenis_kelamin,
-          kota: this.editedItem.kota,
-          agama: this.editedItem.agama,
-          posisi: this.editedItem.posisi,
-          gaji: this.editedItem.gaji,
+        const response = await axios.put(`http://localhost:8000/api/v1/pegawai/${this.editedItem.id}`, formData ,{
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',
+          }
         });
 
         // edit pada editedItem aray
         if (response.status === 200) {
           const index = this.items.findIndex((item) => item.id === this.editedItem.id);
-          this.closeEditItemDialog();
         if (index !== -1) {
           this.$set(this.items, index, { ...this.editedItem });
           // this.$set(this.items, index, { ...this.items[index], ...this.editedItem });
           console.log(this.editedItem.file.name)
         }
-        // this.closeEditItemDialog();
+        this.closeEditItemDialog();
         } else {
           console.error('gagal edit pegawai');
         }
@@ -286,9 +466,22 @@ export default {
     },
   },
   mounted(){
-    this.findAll()
+    this.allPegawai()
+    this.loadProvinces()
+    this.loadAgama()
+    this.loadPosisi()
+    // console.log(this.dataPegawais)
     // this.addPegawai()
     // this.deletePegawai()
-  }
+  },
+
+  watch: {
+    dataPegawais() {
+      this.pagination.totalItems = this.dataPegawais.length;
+    },
+    selectedCareerCode() {
+      this.allPegawai()
+    },
+  },
 };
 </script>
