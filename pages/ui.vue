@@ -20,7 +20,7 @@
         </v-list-item>
       </v-list>
 
-      <v-treeview :items="treeItems" activatable @update:active="treeViewHandler"></v-treeview>
+      <!-- <v-treeview :items="treeItems" activatable @update:active="treeViewHandler"></v-treeview> -->
 
     </v-navigation-drawer>
 
@@ -66,9 +66,9 @@
             <v-card v-if="selectedIndex === 0"><DataViewTable /></v-card>
             <!-- <v-card v-if="selectedIndex === 1"><PagingPage /></v-card>
             <v-card v-if="selectedIndex === 2"><TestingTree /></v-card> -->
-            <v-card v-if="selectedIndex === 'P1'"><h1>hello world from TECHNOLOGY</h1></v-card>
+            <!-- <v-card v-if="selectedIndex === 'P1'"><h1>hello world from TECHNOLOGY</h1></v-card>
             <v-card v-if="selectedIndex === 'P2'"><h1>Hello World from BUSINESS</h1></v-card>
-            <v-card v-if="selectedIndex === 'P3'"><h1>Hello World from HUMAN RESOURCE</h1></v-card>
+            <v-card v-if="selectedIndex === 'P3'"><h1>Hello World from HUMAN RESOURCE</h1></v-card> -->
             
           </v-col>
         </v-row>
@@ -98,13 +98,6 @@ export default {
     };
   },
   methods: {
-    treeViewHandler(item) {
-      console.log('Tree node clicked:', item);
-
-      this.selectedIndex = item[0];
-      console.log(item[0])
-      console.log(item.id)
-    },
     navigate(index) {
       this.selectedIndex = index;
     },
@@ -164,71 +157,12 @@ export default {
       }
     },
 
-    transformDataForTreeView(apiResponse) {
-    // Create a map to store items based on career_code
-    const careerCodeMap = new Map();
-
-    // Iterate over the API response to build the tree structure
-    apiResponse.forEach((item) => {
-      const { id, career_code, name } = item;
-
-      // Check if the career_code already exists in the map
-      if (careerCodeMap.has(career_code)) {
-        // Add the node to the existing career_code
-        careerCodeMap.get(career_code).children.push({ id, name });
-      } else {
-        // Create a new career_code entry in the map
-        careerCodeMap.set(career_code, { id: career_code, name: career_code, children: [{ id, name }] });
-      }
-    });
-
-    // Iterate over the transformed treeItems and add names from careers_parent
-    const treeItems = Array.from(careerCodeMap.values());
-    treeItems.forEach((item) => {
-      const nameFromParent = this.careersParentMap.get(item.id);
-      if (nameFromParent) {
-        item.name = nameFromParent;
-      }
-      // Iterate over children, if present
-      if (item.children) {
-        item.children.forEach((child) => {
-          const nameFromChildParent = this.careersParentMap.get(child.id);
-          if (nameFromChildParent) {
-            child.name = nameFromChildParent;
-          }
-        });
-      }
-    });
-
-    return treeItems;
-    },
-    async fetchCareerData() {
-      try {
-        const response = await axios.get('http://localhost:8000/api/careers');
-        // Transform the API response for v-treeview
-        this.treeItems = this.transformDataForTreeView(response.data);
-      } catch (error) {
-        console.error('Error fetching career data:', error);
-      }
-    },
-    async fetchCareersParentData() {
-    try {
-      const response = await axios.get('http://localhost:8000/api/careers_parent');
-      // Create a map from careers_parent data for easy lookup
-      response.data.forEach((item) => {
-        this.careersParentMap.set(item.career_code, item.name);
-      });
-    } catch (error) {
-      console.error('Error fetching careers_parent data:', error);
-    }
-  },
+    
 
   },
   mounted(){
     const dataLoginStorage = localStorage.getItem('dataLogin')
     this.dataLogin = JSON.parse(dataLoginStorage)    
-    this.fetchCareersParentData();
-    this.fetchCareerData();
   }
 };
 </script>

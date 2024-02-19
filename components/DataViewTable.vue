@@ -3,6 +3,8 @@
     <v-container>
       <v-row>
         <v-col>
+        </v-col>
+        <v-col>
           <v-text-field v-model="search" label="Search" @input="filterItems" />
         </v-col>
         <v-col class="text-right">
@@ -10,39 +12,48 @@
         </v-col>
       </v-row>
 
+      <v-row>
+        <!-- treeview -->
+        <v-col>
+          <TreePegawai />
+        </v-col>
+
+        <v-col>
       <!-- <p>{{ dataPegawais }}</p> -->
-      <v-data-table 
-      :headers="headers" 
-      :items="filteredItems" 
-      item-key="id"
-      :options.sync="pagination"
-      >
-        <template v-slot:item="props">
-          <tr>
-            <td>{{ props.item.id }}</td>
-            <td>
-              <img :src="`http://localhost:8000/storage/${props.item.file}`" alt="gambar" style="max-width: 50px; max-height: 50px;">
-            </td>
-            <td>{{ props.item.nama }}</td>
-            <td>{{ props.item.jenis_kelamin }}</td>
-            <td>{{ props.item.provinsi }}</td>
-            <td>{{ props.item.agama }}</td>
-            <td>{{ props.item.posisi }}</td>
-            <td>{{ props.item.gaji }}</td>
-            <td>
-              <v-btn @click="openEditItemDialog(props.item)" icon>
-                <v-icon>mdi-pencil</v-icon>
-              </v-btn>
-              <v-btn @click="confirmDelete(props.item.id)" icon>
-                <v-icon>mdi-delete</v-icon>
-              </v-btn>
-              <!-- <v-btn @click="deletePegawai(props.item.id)" icon>
-                <v-icon>mdi-delete</v-icon>
-              </v-btn> -->
-            </td>
-          </tr>
-        </template>
-      </v-data-table>
+        <v-data-table 
+        :headers="headers" 
+        :items="filteredItems" 
+        item-key="id"
+        :options.sync="pagination"
+        >
+          <template v-slot:item="props">
+            <tr>
+              <td>{{ props.item.id }}</td>
+              <td>
+                <img :src="`http://localhost:8000/storage/${props.item.file}`" alt="gambar" style="max-width: 50px; max-height: 50px;">
+              </td>
+              <td>{{ props.item.nama }}</td>
+              <td>{{ props.item.jenis_kelamin }}</td>
+              <td>{{ props.item.provinsi }}</td>
+              <td>{{ props.item.agama }}</td>
+              <td>{{ props.item.posisi }}</td>
+              <td>{{ props.item.gaji }}</td>
+              <td>
+                <v-btn @click="openEditItemDialog(props.item)" icon>
+                  <v-icon>mdi-pencil</v-icon>
+                </v-btn>
+                <v-btn @click="confirmDelete(props.item.id)" icon>
+                  <v-icon>mdi-delete</v-icon>
+                </v-btn>
+                <!-- <v-btn @click="deletePegawai(props.item.id)" icon>
+                  <v-icon>mdi-delete</v-icon>
+                </v-btn> -->
+              </td>
+            </tr>
+          </template>
+        </v-data-table>
+      </v-col>
+    </v-row>
 
       <div class="text-xs-center pt-2 md4 lg4">
         <v-pagination
@@ -72,8 +83,6 @@
               outlined
               dense
             ></v-autocomplete>
-            <!-- <v-text-field v-model="newItem.provinsi" label="provinsi"></v-text-field> -->
-            <!-- <v-text-field v-model="newItem.agama" label="Agama"></v-text-field> -->
             <v-autocomplete
               v-model="newItem.agama"
               :items="religionOptions"
@@ -83,7 +92,6 @@
               outlined
               dense
             ></v-autocomplete>
-            <!-- <v-text-field v-model="newItem.posisi" label="Posisi Kerja"></v-text-field> -->
             <v-autocomplete
               v-model="newItem.posisi"
               :items="posisiOptions"
@@ -111,9 +119,7 @@
             <p>{{ editedItem.file }}</p>
             <v-file-input v-model="newItem.file" label="Upload Image" accept="image/*"></v-file-input> <!-- masih menggunakan props newItem --> 
             <v-text-field v-model="editedItem.nama" label="Nama"></v-text-field>
-            <!-- <v-text-field v-model="editedItem.jenis_kelamin" label="Jenis Kelamin"></v-text-field> -->
             <v-select v-model="editedItem.jenis_kelamin" :items="genderOptions" label="Jenis Kelamin"></v-select>
-            <!-- <v-text-field v-model="editedItem.provinsi" label="provinsi"></v-text-field> -->
             <p>{{ editedItem.provinsi }}</p>
             <v-autocomplete
               v-model="editedItem.provinsi"
@@ -124,7 +130,6 @@
               outlined
               dense
             ></v-autocomplete>
-            <!-- <v-text-field v-model="editedItem.agama" label="Agama"></v-text-field> -->
             <v-autocomplete
               v-model="editedItem.agama"
               :items="religionOptions"
@@ -230,18 +235,47 @@ export default {
       // return this.dataPegawais.filter((pegawai) =>
       //   pegawai.nama.toLowerCase().includes(this.search.toLowerCase())
       // );
-      return this.dataPegawais.filter((pegawai) => {
-        const searchLowerCase = this.search.toLowerCase();
-        return (
-          pegawai.nama.toLowerCase().includes(searchLowerCase) ||
-          pegawai.jenis_kelamin.toLowerCase().includes(searchLowerCase) ||
-          pegawai.provinsi.toLowerCase().includes(searchLowerCase) ||
-          pegawai.agama.toLowerCase().includes(searchLowerCase) ||
-          pegawai.posisi.toLowerCase().includes(searchLowerCase) 
-        );
+      if (!this.selectedCareerCode) {
+        return this.dataPegawais.filter((pegawai) => {
+          const searchLowerCase = this.search.toLowerCase();
+          return (
+            pegawai.nama.toLowerCase().includes(searchLowerCase) ||
+            pegawai.jenis_kelamin.toLowerCase().includes(searchLowerCase) ||
+            pegawai.provinsi.toLowerCase().includes(searchLowerCase) ||
+            pegawai.agama.toLowerCase().includes(searchLowerCase) ||
+            pegawai.posisi.toLowerCase().includes(searchLowerCase) 
+          );
+        });
+      }
+
+      return this.dataPegawais.filter((pegawai) =>
+        console.log('pegawai.id_posisi: ', pegawai.id_posisi) ||
+        console.log('selectedCareerCode', this.selectedCareerCode) ||
+        pegawai.id_posisi === this.selectedCareerCode 
+      );
+
+      this.dataPegawais.forEach(pegawai => {
+        if(pegawai.id_posisi === this.selectedCareerCode){
+          console.log('angka nya')
+        }
       });
 
     },
+
+    selectedCareerCode() {
+      return this.$store.getters['Pegawai/TreeFilter/selectedCareerCode'];
+    },
+    
+    // filteredItems() {
+    //   if (!this.selectedCareerCode) {
+    //     return this.dataPegawais;
+    //   }
+
+    //   // Filter the data based on the selected career code
+    //   return this.dataPegawais.filter((pegawai) =>
+    //     pegawai.id_posisi === this.selectedCareerCode
+    //   );
+    // },
 
     pages() {
       if (
@@ -323,7 +357,9 @@ export default {
     async loadPosisi(){
       try{
         const response = await this.$axios.get('http://localhost:8000/api/careers')
-        this.posisiOptions = response.data
+        // this.posisiOptions = response.data
+        this.posisiOptions = response.data.filter(item => item.tree_lvl === "2")
+        // console.log(response.data)
       }catch(err){
         console.log(err)
       }
@@ -384,6 +420,7 @@ export default {
     this.loadProvinces()
     this.loadAgama()
     this.loadPosisi()
+    // console.log(this.dataPegawais)
     // this.addPegawai()
     // this.deletePegawai()
   },
@@ -391,7 +428,10 @@ export default {
   watch: {
     dataPegawais() {
       this.pagination.totalItems = this.dataPegawais.length;
-    }
+    },
+    selectedCareerCode() {
+      this.allPegawai()
+    },
   },
 };
 </script>
