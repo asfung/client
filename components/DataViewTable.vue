@@ -245,7 +245,7 @@ export default {
     
     filteredItems() {
       if (!this.selectedCareerCode) {
-        return this.dataPegawais.data
+        return this.dataPegawais
       }
 
       // Filter the data based on the selected career code
