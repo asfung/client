@@ -3,16 +3,19 @@ export default {
     state.dataPegawais = payload;
   },
   DELETE_PEGAWAI(state, id) {
-    const index = state.dataPegawais.findIndex((pegawai) => pegawai.id === id);
+    const index = state.dataPegawais.data.findIndex((pegawai) => pegawai.id === id);
     console.log('terhapus..');
     if (index !== -1) {
-      state.dataPegawais.splice(index, 1);
+      state.dataPegawais.data.splice(index, 1);
     }
   },
   UPDATE_PEGAWAI(state, editedPegawai) {
-    const index = state.dataPegawais.findIndex((pegawai) => pegawai.id === editedPegawai.id);
+    const index = state.dataPegawais.data.findIndex((pegawai) => pegawai.id === editedPegawai.id);
     if (index !== -1) {
       state.dataPegawais.splice(index, 1, editedPegawai);
     }
+  },
+  SET_PEGAWAI_DATA(state, payload) {
+    state.dataPegawais.data = payload;
   },
 };

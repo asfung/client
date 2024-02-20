@@ -15,16 +15,19 @@
       <v-row>
         <!-- treeview -->
         <v-col>
+          <h1 class="d-flex">Filter Posisi</h1>
           <TreePegawai />
         </v-col>
 
         <v-col>
       <!-- <p>{{ dataPegawais }}</p> -->
-        <v-data-table 
+        <v-data-table
         :headers="headers" 
         :items="filteredItems" 
         item-key="id"
         :options.sync="pagination"
+        disable-pagination   
+        hide-default-footer
         >
           <template v-slot:item="props">
             <tr>
@@ -181,7 +184,7 @@ export default {
   layout: 'none',
   data() {
     return {
-      pagination: { totalItems: 0, rowsPerPage: 6, page: 1 },
+      pagination: { totalItems: 0, rowsPerPage: 5, page: 1 },
       posisiOptions: [],
       religionOptions: [],
       provinceOptions: [],
@@ -231,51 +234,25 @@ export default {
       dataPegawais: state => state.Pegawai.dataPegawais
     }),
 
-    filteredItems() {
-      // return this.dataPegawais.filter((pegawai) =>
-      //   pegawai.nama.toLowerCase().includes(this.search.toLowerCase())
-      // );
-      if (!this.selectedCareerCode) {
-        return this.dataPegawais.filter((pegawai) => {
-          const searchLowerCase = this.search.toLowerCase();
-          return (
-            pegawai.nama.toLowerCase().includes(searchLowerCase) ||
-            pegawai.jenis_kelamin.toLowerCase().includes(searchLowerCase) ||
-            pegawai.provinsi.toLowerCase().includes(searchLowerCase) ||
-            pegawai.agama.toLowerCase().includes(searchLowerCase) ||
-            pegawai.posisi.toLowerCase().includes(searchLowerCase) 
-          );
-        });
-      }
+    // filteredItems() {
+    //   return this.dataPegawais.data;
+    // },
 
-      return this.dataPegawais.filter((pegawai) =>
-        console.log('pegawai.id_posisi: ', pegawai.id_posisi) ||
-        console.log('selectedCareerCode', this.selectedCareerCode) ||
-        pegawai.id_posisi === this.selectedCareerCode 
-      );
-
-      this.dataPegawais.forEach(pegawai => {
-        if(pegawai.id_posisi === this.selectedCareerCode){
-          console.log('angka nya')
-        }
-      });
-
-    },
 
     selectedCareerCode() {
       return this.$store.getters['Pegawai/TreeFilter/selectedCareerCode'];
     },
     
-    // filteredItems() {
-    //   if (!this.selectedCareerCode) {
-    //     return this.dataPegawais;
-    //   }
+    filteredItems() {
+      if (!this.selectedCareerCode) {
+        return this.dataPegawais.data
+      }
 
-    //   // Filter the data based on the selected career code
-    //   return this.dataPegawais.filter((pegawai) =>
-    //     pegawai.id_posisi === this.selectedCareerCode
-    //   );
-    // },
+      // Filter the data based on the selected career code
+      return this.dataPegawais.data.filter((pegawai) =>
+        pegawai.id_posisi === this.selectedCareerCode
+      );
+    },
 
     pages() {
       if (
@@ -293,7 +270,12 @@ export default {
   methods: {
     // pagination
     paginationChangeHandler(pageNumber) {
+      console.log('Pagination changed:', pageNumber);
+      console.log('Current pagination:', this.pagination);
       this.pagination.page = pageNumber;
+      // this.pagination.rowsPerPage = this.pagination.rowsPerPage;
+
+      console.log('Current pagination:', this.pagination);
       this.allPegawai(); 
     },
     // pagination close
@@ -358,8 +340,21 @@ export default {
       try{
         const response = await this.$axios.get('http://localhost:8000/api/careers')
         // this.posisiOptions = response.data
-        this.posisiOptions = response.data.filter(item => item.tree_lvl === "2")
-        // console.log(response.data)
+        this.posisiOptions = response.data.filter(item => item.tree_lvl === "2" || item.tree_lvl === "3")
+        // const response = await this.$axios.get('http://localhost:8000/api/career_test')
+        // this.posisiOptions = response.data.filter(item => item.parent_id !== null)
+        // const topLevelItems = response.data.filter(item => item.parent_id === null);
+
+        // // Preserve the hierarchy by including children for each top-level item
+        // this.posisiOptions = topLevelItems.map(topLevelItem => {
+        //     const itemWithChildren = { ...topLevelItem };
+
+        //     // Filter children for each top-level item
+        //     itemWithChildren.children = response.data.filter(childItem => childItem.parent_id === topLevelItem.id);
+
+        //     return itemWithChildren;
+        // });
+
       }catch(err){
         console.log(err)
       }
@@ -367,7 +362,13 @@ export default {
 
     // vuex
     async allPegawai(){
-      await this.$store.dispatch('Pegawai/findAll')
+      // await this.$store.dispatch('Pegawai/findAll')
+      try {
+        await this.$store.dispatch('Pegawai/findAll', this.pagination.page);
+        this.pagination.totalItems = this.dataPegawais.total_items
+      } catch (err) {
+        console.error('Error fetching paginated data:', err);
+      }
     },
 
     async addPegawai() {
@@ -411,8 +412,16 @@ export default {
       }
     },
 
-    filterItems() {
+    async searchPegawai(){
+      await this.$store.dispatch('Pegawai/searchPegawai', this.search)
+    },
 
+    async filterItems() {
+      if (this.search.trim() !== '') {
+        await this.searchPegawai();
+      } else {
+        this.allPegawai();
+      }
     },
   },
   mounted(){
@@ -420,15 +429,11 @@ export default {
     this.loadProvinces()
     this.loadAgama()
     this.loadPosisi()
-    // console.log(this.dataPegawais)
-    // this.addPegawai()
-    // this.deletePegawai()
+    console.log(this.selectedCareerCode)
+    // console.log(this.dataPegawais.total_items)
   },
 
   watch: {
-    dataPegawais() {
-      this.pagination.totalItems = this.dataPegawais.length;
-    },
     selectedCareerCode() {
       this.allPegawai()
     },

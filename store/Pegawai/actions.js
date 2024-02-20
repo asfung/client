@@ -1,11 +1,14 @@
 export default{
-  async findAll({ commit }){
+  async findAll({ commit }, page){
     try{
       const token = localStorage.getItem('token')
       const pegawais = await this.$axios.get('api/v1/pegawai', {
         headers: {
           Authorization: `Bearer ${token}`
-        }
+        },
+        params: {
+          page: page,
+        },
       });
 
       // this.items = pegawais.data 
@@ -82,5 +85,21 @@ export default{
       console.error('Error editing pegawai:', err);
     }
   },
+
+  async searchPegawai({commit}, nama){
+    try{
+      const token = localStorage.getItem('token')
+      const pegawai = await this.$axios.get(`api/v1/pegawai/search?nama=${nama}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      commit('SET_PEGAWAI_DATA', pegawai.data)
+      // console.log(pegawai.data)
+    }catch(err){
+      // console.log(err)
+      console.log('not found')
+    }
+  }
 
 }
