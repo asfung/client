@@ -16,3 +16,9 @@ so basiccaly we use the provinsi in newItem and editedItem is provinsi[] yang di
 }
 
 jadi selectedProvinsi akan dijadikan provinsi pada newItem dan editedItem 
+
+
+category = treeview filter
+
+- so the category can synchroning depends on category when it clicked
+

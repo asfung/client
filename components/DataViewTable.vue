@@ -8,6 +8,7 @@
           <v-text-field v-model="search" label="Search" @input="filterItems" />
         </v-col>
         <v-col class="text-right">
+          <v-btn @click="downloadExcel" color="error">Download Excel</v-btn>
           <v-btn @click="openNewItemDialog" color="primary">Tambah Pegawai</v-btn>
         </v-col>
       </v-row>
@@ -23,7 +24,7 @@
       <!-- <p>{{ dataPegawais }}</p> -->
         <v-data-table
         :headers="headers" 
-        :items="filteredItems" 
+        :items="filteredItemsTable" 
         item-key="id"
         :options.sync="pagination"
         disable-pagination   
@@ -180,11 +181,13 @@
 
 <script>
 import { mapState } from 'vuex'
+import * as XLSX from 'xlsx';
 export default {
   layout: 'none',
   data() {
     return {
-      pagination: { totalItems: 0, rowsPerPage: 5, page: 1 },
+      filteredItems: [],
+      pagination: { totalItems: 0, rowsPerPage: 5, page: 0 },
       posisiOptions: [],
       religionOptions: [],
       provinceOptions: [],
@@ -243,15 +246,19 @@ export default {
       return this.$store.getters['Pegawai/TreeFilter/selectedCareerCode'];
     },
     
-    filteredItems() {
+    filteredItemsTable() {
       if (!this.selectedCareerCode) {
-        return this.dataPegawais
+        // this.allPegawai()
+        return this.dataPegawais.data
       }
 
       // Filter the data based on the selected career code
-      return this.dataPegawais.data.filter((pegawai) =>
-        pegawai.id_posisi === this.selectedCareerCode
-      );
+      // return this.dataPegawais.data.filter((pegawai) =>
+      //   pegawai.id_posisi === this.selectedCareerCode  ||
+      //   console.log(pegawai)
+      // );
+      // return this.dataPegawais.filteredData; 
+      return this.filteredItems.data;
     },
 
     pages() {
@@ -365,6 +372,7 @@ export default {
       // await this.$store.dispatch('Pegawai/findAll')
       try {
         await this.$store.dispatch('Pegawai/findAll', this.pagination.page);
+        // await this.$store.dispatch('Pegawai/findAll', { page, selectedCareerCode });
         this.pagination.totalItems = this.dataPegawais.total_items
       } catch (err) {
         console.error('Error fetching paginated data:', err);
@@ -413,7 +421,34 @@ export default {
     },
 
     async searchPegawai(){
+      console.log('Searching for:', this.search);
       await this.$store.dispatch('Pegawai/searchPegawai', this.search)
+      console.log('Filtered items:', this.filteredItems);
+    },
+
+    async findIdPosisi() {
+      try {
+        await this.$store.dispatch('Pegawai/findIdPosisi', {
+          page: this.pagination.page,
+          id_posisi: this.selectedCareerCode, 
+        });
+        this.filteredItems = this.dataPegawais;
+        // this.pagination.totalItems = this.filteredItems.total
+
+      } catch (error) {
+        console.error('Error searching pegawai:', error);
+      }
+    },
+
+    downloadExcel() {
+      const data = this.dataPegawais.data;
+
+      const ws = XLSX.utils.json_to_sheet(data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Sheet 1');
+
+      const filename = 'pegawai_data.xlsx';
+      XLSX.writeFile(wb, filename);
     },
 
     async filterItems() {
@@ -429,13 +464,18 @@ export default {
     this.loadProvinces()
     this.loadAgama()
     this.loadPosisi()
-    console.log(this.selectedCareerCode)
+    this.selectedCareerCode
     // console.log(this.dataPegawais.total_items)
   },
 
   watch: {
     selectedCareerCode() {
       this.allPegawai()
+      // this.allPegawai(1, this.selectedCareerCode);
+      // this.allPegawai(this.pagination.page, this.selectedCareerCode);
+      this.findIdPosisi()
+      console.log('from filteredItems', this.filteredItems)
+      console.log('from dataPegawai', this.dataPegawais)
     },
   },
 };

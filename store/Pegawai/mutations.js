@@ -18,4 +18,7 @@ export default {
   SET_PEGAWAI_DATA(state, payload) {
     state.dataPegawais.data = payload;
   },
+  SET_FILTERED_DATA(state, filteredData) {
+    state.dataPegawais.filteredData = filteredData;
+  },
 };
