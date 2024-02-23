@@ -23,11 +23,11 @@
         <v-col>
       <!-- <p>{{ dataPegawais }}</p> -->
         <v-data-table
-        :headers="headers" 
-        :items="filteredItemsTable" 
+        :headers="headers"
+        :items="filteredItemsTable"
         item-key="id"
         :options.sync="pagination"
-        disable-pagination   
+        disable-pagination
         hide-default-footer
         >
           <template v-slot:item="props">
@@ -121,7 +121,7 @@
           <v-card-text>
             <v-text-field v-model="editedItem.id" label="No" readonly></v-text-field>
             <p>{{ editedItem.file }}</p>
-            <v-file-input v-model="newItem.file" label="Upload Image" accept="image/*"></v-file-input> <!-- masih menggunakan props newItem --> 
+            <v-file-input v-model="newItem.file" label="Upload Image" accept="image/*"></v-file-input> <!-- masih menggunakan props newItem -->
             <v-text-field v-model="editedItem.nama" label="Nama"></v-text-field>
             <v-select v-model="editedItem.jenis_kelamin" :items="genderOptions" label="Jenis Kelamin"></v-select>
             <p>{{ editedItem.provinsi }}</p>
@@ -245,7 +245,7 @@ export default {
     selectedCareerCode() {
       return this.$store.getters['Pegawai/TreeFilter/selectedCareerCode'];
     },
-    
+
     filteredItemsTable() {
       if (!this.selectedCareerCode) {
         // this.allPegawai()
@@ -257,7 +257,7 @@ export default {
       //   pegawai.id_posisi === this.selectedCareerCode  ||
       //   console.log(pegawai)
       // );
-      // return this.dataPegawais.filteredData; 
+      // return this.dataPegawais.filteredData;
       return this.filteredItems.data;
     },
 
@@ -283,7 +283,7 @@ export default {
       // this.pagination.rowsPerPage = this.pagination.rowsPerPage;
 
       console.log('Current pagination:', this.pagination);
-      this.allPegawai(); 
+      this.allPegawai();
     },
     // pagination close
 
@@ -430,7 +430,7 @@ export default {
       try {
         await this.$store.dispatch('Pegawai/findIdPosisi', {
           page: this.pagination.page,
-          id_posisi: this.selectedCareerCode, 
+          id_posisi: this.selectedCareerCode,
         });
         this.filteredItems = this.dataPegawais;
         // this.pagination.totalItems = this.filteredItems.total

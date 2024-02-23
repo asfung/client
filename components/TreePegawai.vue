@@ -9,7 +9,7 @@ export default {
       selectedNode: null,
       treeItems: [],
       treeDataItems: [],
-      careersParentMap: new Map(), 
+      careersParentMap: new Map(),
     }
   },
   methods: {
@@ -34,8 +34,8 @@ export default {
       } catch (error) {
         console.error('Error fetching career data:', error);
       }
-    },
 
+    },
     transformDataForTreeView(data) {
       return data.map(item => {
         const transformedItem = {
@@ -55,7 +55,7 @@ export default {
       });
     },
 
-   
+
   },
 
   mounted(){
