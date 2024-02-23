@@ -8,6 +8,7 @@
           <v-text-field v-model="search" label="Search" @input="filterItems" />
         </v-col>
         <v-col class="text-right">
+          <v-btn @click="downloadExcel" color="error">Download Excel</v-btn>
           <v-btn @click="openNewItemDialog" color="primary">Tambah Pegawai</v-btn>
         </v-col>
       </v-row>
@@ -15,16 +16,19 @@
       <v-row>
         <!-- treeview -->
         <v-col>
+          <h1 class="d-flex">Filter Posisi</h1>
           <TreePegawai />
         </v-col>
 
         <v-col>
       <!-- <p>{{ dataPegawais }}</p> -->
-        <v-data-table 
-        :headers="headers" 
-        :items="filteredItems" 
+        <v-data-table
+        :headers="headers"
+        :items="filteredItemsTable"
         item-key="id"
         :options.sync="pagination"
+        disable-pagination
+        hide-default-footer
         >
           <template v-slot:item="props">
             <tr>
@@ -117,7 +121,8 @@
           <v-card-title>Edit Item</v-card-title>
           <v-card-text>
             <v-text-field v-model="editedItem.id" label="No" readonly></v-text-field>
-            <v-file-input v-model="editedItem.file" label="Upload Image" accept="image/*"></v-file-input>
+            <p>{{ editedItem.file }}</p>
+            <v-file-input v-model="newItem.file" label="Upload Image" accept="image/*"></v-file-input> <!-- masih menggunakan props newItem -->
             <v-text-field v-model="editedItem.nama" label="Nama"></v-text-field>
             <v-select v-model="editedItem.jenis_kelamin" :items="genderOptions" label="Jenis Kelamin"></v-select>
             <p>{{ editedItem.provinsi }}</p>
@@ -177,11 +182,13 @@
 
 <script>
 import { mapState } from 'vuex'
+import * as XLSX from 'xlsx';
 export default {
   layout: 'none',
   data() {
     return {
-      pagination: { totalItems: 0, rowsPerPage: 6, page: 1 },
+      filteredItems: [],
+      pagination: { totalItems: 0, rowsPerPage: 5, page: 0 },
       posisiOptions: [],
       religionOptions: [],
       provinceOptions: [],
@@ -228,51 +235,29 @@ export default {
       dataPegawais: state => state.Pegawai.dataPegawais
     }),
 
-    filteredItems() {
-      // return this.dataPegawais.filter((pegawai) =>
-      //   pegawai.nama.toLowerCase().includes(this.search.toLowerCase())
-      // );
-      if (!this.selectedCareerCode) {
-        return this.dataPegawais.filter((pegawai) => {
-          const searchLowerCase = this.search.toLowerCase();
-          return (
-            pegawai.nama.toLowerCase().includes(searchLowerCase) ||
-            pegawai.jenis_kelamin.toLowerCase().includes(searchLowerCase) ||
-            pegawai.provinsi.toLowerCase().includes(searchLowerCase) ||
-            pegawai.agama.toLowerCase().includes(searchLowerCase) ||
-            pegawai.posisi.toLowerCase().includes(searchLowerCase) 
-          );
-        });
-      }
+    // filteredItems() {
+    //   return this.dataPegawais.data;
+    // },
 
-      return this.dataPegawais.filter((pegawai) =>
-        console.log('pegawai.id_posisi: ', pegawai.id_posisi) ||
-        console.log('selectedCareerCode', this.selectedCareerCode) ||
-        pegawai.id_posisi === this.selectedCareerCode 
-      );
-
-      this.dataPegawais.forEach(pegawai => {
-        if(pegawai.id_posisi === this.selectedCareerCode){
-          console.log('angka nya')
-        }
-      });
-
-    },
 
     selectedCareerCode() {
       return this.$store.getters['Pegawai/TreeFilter/selectedCareerCode'];
     },
-    
-    // filteredItems() {
-    //   if (!this.selectedCareerCode) {
-    //     return this.dataPegawais;
-    //   }
 
-    //   // Filter the data based on the selected career code
-    //   return this.dataPegawais.filter((pegawai) =>
-    //     pegawai.id_posisi === this.selectedCareerCode
-    //   );
-    // },
+    filteredItemsTable() {
+      if (!this.selectedCareerCode) {
+        // this.allPegawai()
+        return this.dataPegawais.data
+      }
+
+      // Filter the data based on the selected career code
+      // return this.dataPegawais.data.filter((pegawai) =>
+      //   pegawai.id_posisi === this.selectedCareerCode  ||
+      //   console.log(pegawai)
+      // );
+      // return this.dataPegawais.filteredData;
+      return this.filteredItems.data;
+    },
 
     pages() {
       if (
@@ -290,8 +275,13 @@ export default {
   methods: {
     // pagination
     paginationChangeHandler(pageNumber) {
+      console.log('Pagination changed:', pageNumber);
+      console.log('Current pagination:', this.pagination);
       this.pagination.page = pageNumber;
-      this.allPegawai(); 
+      // this.pagination.rowsPerPage = this.pagination.rowsPerPage;
+
+      console.log('Current pagination:', this.pagination);
+      this.allPegawai();
     },
     // pagination close
 
@@ -365,56 +355,71 @@ export default {
         window.location.href = "/login"
       }
     },
-    
-    async addPegawai(){
+
+    async loadAgama() {
+      try {
+        const response = await this.$axios.get('http://localhost:8000/api/religions');
+        this.religionOptions = response.data;
+
+      } catch (error) {
+        console.error('Error loading provinces:', error);
+      }
+    },
+
+    async loadPosisi(){
       try{
-        const token = localStorage.getItem('token')
-        const formData = new FormData()
-      
-        formData.append('file', this.newItem.file);
-        formData.append('nama', this.newItem.nama);
-        formData.append('jenis_kelamin', this.newItem.jenis_kelamin);
-        formData.append('kota', this.newItem.kota);
-        formData.append('agama', this.newItem.agama);
-        formData.append('posisi', this.newItem.posisi);
-        formData.append('gaji', this.newItem.gaji);
-        const pegawaiTambah = await axios.post('http://localhost:8000/api/v1/pegawai', formData, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data',
-          }
-        })
-        console.log(pegawaiTambah.data)
-        // console.log(this.newItem.file)
-        this.closeNewItemDialog();
-        this.findAll() // walaaahhh
+        const response = await this.$axios.get('http://localhost:8000/api/careers')
+        // this.posisiOptions = response.data
+        this.posisiOptions = response.data.filter(item => item.tree_lvl === "2" || item.tree_lvl === "3")
+        // const response = await this.$axios.get('http://localhost:8000/api/career_test')
+        // this.posisiOptions = response.data.filter(item => item.parent_id !== null)
+        // const topLevelItems = response.data.filter(item => item.parent_id === null);
+
+        // // Preserve the hierarchy by including children for each top-level item
+        // this.posisiOptions = topLevelItems.map(topLevelItem => {
+        //     const itemWithChildren = { ...topLevelItem };
+
+        //     // Filter children for each top-level item
+        //     itemWithChildren.children = response.data.filter(childItem => childItem.parent_id === topLevelItem.id);
+
+        //     return itemWithChildren;
+        // });
+
       }catch(err){
         console.log(err)
       }
     },
 
-    async deletePegawai(){
-      try{
-        const token = localStorage.getItem('token')
-        const response = await axios.delete(`http://localhost:8000/api/v1/pegawai/${this.itemToDeleteId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            // 'Content-Type': 'multipart/form-data',
-          }
-        });
-      if (response.status === 200) {
-        console.log('terhapus..');
-        const index = this.items.findIndex((item) => item.id === this.itemToDeleteId);
-        if (index !== -1) {
-          this.items.splice(index, 1);
-        }
-        this.cancelDelete();
-      } else {
-        console.error('gagal delete');
+    // vuex
+    async allPegawai(){
+      // await this.$store.dispatch('Pegawai/findAll')
+      try {
+        await this.$store.dispatch('Pegawai/findAll', this.pagination.page);
+        // await this.$store.dispatch('Pegawai/findAll', { page, selectedCareerCode });
+        this.pagination.totalItems = this.dataPegawais.total_items
+      } catch (err) {
+        console.error('Error fetching paginated data:', err);
       }
-      }catch(err){
-        // console.log('gk bisa dihapus kocakk')
-        console.info(err)
+    },
+
+    async addPegawai() {
+      try {
+
+        await this.$store.dispatch('Pegawai/addPegawai', this.newItem);
+        this.closeNewItemDialog();
+        this.allPegawai()
+      } catch (err) {
+        console.log('gk berhasil ');
+        console.log(err);
+      }
+    },
+
+    async deletePegawai() {
+    try {
+      await this.$store.dispatch('Pegawai/deletePegawai', this.itemToDeleteId);
+      this.cancelDelete();
+      }catch (err) {
+        console.error('error:', err);
       }
     },
 
@@ -461,8 +466,43 @@ export default {
       }
     },    
 
-    filterItems() {
+    async searchPegawai(){
+      console.log('Searching for:', this.search);
+      await this.$store.dispatch('Pegawai/searchPegawai', this.search)
+      console.log('Filtered items:', this.filteredItems);
+    },
 
+    async findIdPosisi() {
+      try {
+        await this.$store.dispatch('Pegawai/findIdPosisi', {
+          page: this.pagination.page,
+          id_posisi: this.selectedCareerCode,
+        });
+        this.filteredItems = this.dataPegawais;
+        // this.pagination.totalItems = this.filteredItems.total
+
+      } catch (error) {
+        console.error('Error searching pegawai:', error);
+      }
+    },
+
+    downloadExcel() {
+      const data = this.dataPegawais.data;
+
+      const ws = XLSX.utils.json_to_sheet(data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Sheet 1');
+
+      const filename = 'pegawai_data.xlsx';
+      XLSX.writeFile(wb, filename);
+    },
+
+    async filterItems() {
+      if (this.search.trim() !== '') {
+        await this.searchPegawai();
+      } else {
+        this.allPegawai();
+      }
     },
   },
   mounted(){
@@ -470,17 +510,18 @@ export default {
     this.loadProvinces()
     this.loadAgama()
     this.loadPosisi()
-    // console.log(this.dataPegawais)
-    // this.addPegawai()
-    // this.deletePegawai()
+    this.selectedCareerCode
+    // console.log(this.dataPegawais.total_items)
   },
 
   watch: {
-    dataPegawais() {
-      this.pagination.totalItems = this.dataPegawais.length;
-    },
     selectedCareerCode() {
       this.allPegawai()
+      // this.allPegawai(1, this.selectedCareerCode);
+      // this.allPegawai(this.pagination.page, this.selectedCareerCode);
+      this.findIdPosisi()
+      console.log('from filteredItems', this.filteredItems)
+      console.log('from dataPegawai', this.dataPegawais)
     },
   },
 };

@@ -64,8 +64,8 @@
         <v-row>
           <v-col cols="12">
             <v-card v-if="selectedIndex === 0"><DataViewTable /></v-card>
-            <!-- <v-card v-if="selectedIndex === 1"><PagingPage /></v-card>
-            <v-card v-if="selectedIndex === 2"><TestingTree /></v-card> -->
+            <v-card v-if="selectedIndex === 1"><Posisi /></v-card>
+            <!-- <v-card v-if="selectedIndex === 2"><TestingTree /></v-card> -->
             <!-- <v-card v-if="selectedIndex === 'P1'"><h1>hello world from TECHNOLOGY</h1></v-card>
             <v-card v-if="selectedIndex === 'P2'"><h1>Hello World from BUSINESS</h1></v-card>
             <v-card v-if="selectedIndex === 'P3'"><h1>Hello World from HUMAN RESOURCE</h1></v-card> -->
@@ -91,7 +91,7 @@ export default {
       selectedIndex: 0, 
       items: [
         { title: 'Data Table', icon: 'mdi-view-dashboard' },
-        // { title: 'Ntah', icon: 'mdi-settings' },
+        { title: 'Tambah Posisi', icon: 'mdi-settings' },
         // { title: 'Testing Tree', icon: 'mdi-settings' },
       ]
     };

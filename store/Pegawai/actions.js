@@ -1,11 +1,14 @@
 export default{
-  async findAll({ commit }){
+  async findAll({ commit }, page){
     try{
       const token = localStorage.getItem('token')
       const pegawais = await this.$axios.get('api/v1/pegawai', {
         headers: {
           Authorization: `Bearer ${token}`
-        }
+        },
+        params: {
+          page: page,
+        },
       });
 
       // this.items = pegawais.data 
@@ -18,6 +21,33 @@ export default{
       window.location.href = "/login"
     }
   },
+  // async findAll({ commit }, { page, selectedCareerCode }) {
+  //   try {
+  //     const token = localStorage.getItem('token');
+  //     const params = { page };
+  
+  //     // If selectedCareerCode is provided, include it in the request params
+  //     if (selectedCareerCode) {
+  //       params.selectedCareerCode = selectedCareerCode;
+  //     }
+  
+  //     const pegawais = await this.$axios.get('api/v1/pegawai', {
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //       params,
+  //     });
+  
+  //     commit('SET_PEGAWAI', pegawais.data);
+  //   } catch (err) {
+  //     console.log(err);
+  
+  //     // Token expired exception
+  //     localStorage.removeItem('token');
+  //     console.log('Harap login ulang');
+  //     window.location.href = "/login";
+  //   }
+  // },
 
   async addPegawai({ commit }, newItem) {
     try {
@@ -81,6 +111,44 @@ export default{
     } catch (err) {
       console.error('Error editing pegawai:', err);
     }
+  },
+
+  async searchPegawai({commit}, nama){
+    try{
+      const token = localStorage.getItem('token')
+      const pegawai = await this.$axios.get(`api/v1/pegawai/search?nama=${nama}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      commit('SET_PEGAWAI_DATA', pegawai.data)
+      // console.log(pegawai.data)
+    }catch(err){
+      // console.log(err)
+      console.log('not found')
+    }
+  },
+
+  async findIdPosisi({ commit }, { page, id_posisi }) {
+    try {
+      const token = localStorage.getItem('token')
+      if(id_posisi !== null){
+        const response = await this.$axios.get(`http://localhost:8000/api/v1/pegawai/cari?id_posisi=${id_posisi}&page=${page}`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        // commit('SET_PEGAWAI_DATA', response.data);
+        commit('SET_PEGAWAI_DATA', response.data.data);
+        // commit('SET_FILTERED_DATA', filteredData);
+      }
+    } catch (error) {
+      console.error('Error searching pegawai:', error);
+    }
+  },
+
+  updateFilteredData({ commit }, filteredData) {
+    commit('SET_FILTERED_DATA', filteredData);
   },
 
 }
