@@ -1,5 +1,7 @@
+import { watch } from "vue";
+
 export default{
-  async findAll({ commit }, page){
+  async findAll({ commit }, {page, name, id_posisi}){
     try{
       const token = localStorage.getItem('token')
       const pegawais = await this.$axios.get('api/v1/pegawai', {
@@ -8,10 +10,12 @@ export default{
         },
         params: {
           page: page,
+          name: name,
+          id_posisi: id_posisi
         },
       });
 
-      // this.items = pegawais.data 
+      // this.items = pegawais.data
       commit('SET_PEGAWAI', pegawais.data)
     }catch(err){
       console.log(err)
@@ -25,23 +29,23 @@ export default{
   //   try {
   //     const token = localStorage.getItem('token');
   //     const params = { page };
-  
+
   //     // If selectedCareerCode is provided, include it in the request params
   //     if (selectedCareerCode) {
   //       params.selectedCareerCode = selectedCareerCode;
   //     }
-  
+
   //     const pegawais = await this.$axios.get('api/v1/pegawai', {
   //       headers: {
   //         Authorization: `Bearer ${token}`,
   //       },
   //       params,
   //     });
-  
+
   //     commit('SET_PEGAWAI', pegawais.data);
   //   } catch (err) {
   //     console.log(err);
-  
+
   //     // Token expired exception
   //     localStorage.removeItem('token');
   //     console.log('Harap login ulang');
@@ -101,7 +105,7 @@ export default{
           'Content-Type': 'multipart/form-data',
         },
       });
-      
+
       console.log(response.data);
       if (response.status === 200) {
         commit('UPDATE_PEGAWAI', response.data);
@@ -144,6 +148,54 @@ export default{
       }
     } catch (error) {
       console.error('Error searching pegawai:', error);
+    }
+  },
+
+  async downloadExcel({commit} , id_posisi){
+    try {
+      const token = localStorage.getItem('token')
+      if(id_posisi !== null){
+        const response = await this.$axios.get(`api/v1/excel/pegawai?id_posisi=${id_posisi}`, {
+          responseType: 'blob',
+          headers:{
+            Authorization: `Bearer ${token}`
+          }
+        })
+        const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        // Create a link element to trigger the download
+        const link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob);
+        link.download = `pegawai_${id_posisi}.xlsx`;
+
+        // Append the link to the document and trigger the click event
+        document.body.appendChild(link);
+        link.click();
+
+        // Clean up by removing the link from the document
+        document.body.removeChild(link);
+      }else{
+        const response = await this.$axios.get(`api/v1/excel/pegawai?id_posisi=`, {
+          responseType: 'blob',
+          headers:{
+            Authorization: `Bearer ${token}`
+          }
+        })
+        const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        // Create a link element to trigger the download
+        const link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob);
+        link.download = 'pegawai_all.xlsx';
+
+        // Append the link to the document and trigger the click event
+        document.body.appendChild(link);
+        link.click();
+
+        // Clean up by removing the link from the document
+        document.body.removeChild(link);
+      }
+
+    }catch(err){
+      console.log(err)
     }
   },
 

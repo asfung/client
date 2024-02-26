@@ -371,9 +371,11 @@ export default {
     async allPegawai(){
       // await this.$store.dispatch('Pegawai/findAll')
       try {
-        await this.$store.dispatch('Pegawai/findAll', this.pagination.page);
+        // await this.$store.dispatch('Pegawai/findAll', this.pagination.page);
+        await this.$store.dispatch('Pegawai/findAll', {page: this.pagination.page, name: this.search, id_posisi: this.selectedCareerCode});
         // await this.$store.dispatch('Pegawai/findAll', { page, selectedCareerCode });
         this.pagination.totalItems = this.dataPegawais.total_items
+        this.filteredItems = this.dataPegawais
       } catch (err) {
         console.error('Error fetching paginated data:', err);
       }
@@ -420,43 +422,13 @@ export default {
       }
     },
 
-    async searchPegawai(){
-      console.log('Searching for:', this.search);
-      await this.$store.dispatch('Pegawai/searchPegawai', this.search)
-      console.log('Filtered items:', this.filteredItems);
-    },
 
-    async findIdPosisi() {
-      try {
-        await this.$store.dispatch('Pegawai/findIdPosisi', {
-          page: this.pagination.page,
-          id_posisi: this.selectedCareerCode,
-        });
-        this.filteredItems = this.dataPegawais;
-        // this.pagination.totalItems = this.filteredItems.total
-
-      } catch (error) {
-        console.error('Error searching pegawai:', error);
-      }
-    },
-
-    downloadExcel() {
-      const data = this.dataPegawais.data;
-
-      const ws = XLSX.utils.json_to_sheet(data);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, 'Sheet 1');
-
-      const filename = 'pegawai_data.xlsx';
-      XLSX.writeFile(wb, filename);
+    async downloadExcel() {
+      await this.$store.dispatch('Pegawai/downloadExcel', this.selectedCareerCode)
     },
 
     async filterItems() {
-      if (this.search.trim() !== '') {
-        await this.searchPegawai();
-      } else {
-        this.allPegawai();
-      }
+      this.allPegawai();
     },
   },
   mounted(){
@@ -471,9 +443,6 @@ export default {
   watch: {
     selectedCareerCode() {
       this.allPegawai()
-      // this.allPegawai(1, this.selectedCareerCode);
-      // this.allPegawai(this.pagination.page, this.selectedCareerCode);
-      this.findIdPosisi()
       console.log('from filteredItems', this.filteredItems)
       console.log('from dataPegawai', this.dataPegawais)
     },
