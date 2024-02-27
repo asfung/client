@@ -8,6 +8,7 @@
           <v-text-field v-model="search" label="Search" @input="filterItems" />
         </v-col>
         <v-col class="text-right">
+          <v-btn @click="openImportDialog">Import Excel</v-btn>
           <v-btn @click="downloadExcel" color="error">Download Excel</v-btn>
           <v-btn @click="openNewItemDialog" color="primary">Tambah Pegawai</v-btn>
         </v-col>
@@ -163,6 +164,23 @@
         </v-card>
       </v-dialog>
 
+      <!-- Import Excel Dialog -->
+      <v-dialog v-model="importDialog" max-width="600">
+        <v-card>
+          <v-card-title>Import Excel</v-card-title>
+          <v-card-text>
+            <p>Sebelum Mengimport File, Download Template Terlebih Dahulu</p>
+            <a href="/path/to/excel-template.xlsx" download>Download Template</a>
+            <!-- <input type="file" @change="handleFileUpload" accept=".xls, .xlsx"> -->
+            <v-file-input v-model="excelFile" @change="handleFileUpload" label="Upload Excel" accept=".xls, .xlsx"></v-file-input>
+          </v-card-text>
+          <v-card-actions>
+            <v-btn @click="importExcel" color="primary">Import</v-btn>
+            <v-btn @click="closeImportDialog" color="error">Cancel</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
       <!-- konfirmasi -->
       <v-dialog v-model="deleteConfirmationDialog" max-width="400">
         <v-card>
@@ -186,6 +204,8 @@ export default {
   layout: 'none',
   data() {
     return {
+      excelFile: null,
+      importDialog: false,
       filteredItems: [],
       pagination: { totalItems: 0, rowsPerPage: 5, page: 0 },
       posisiOptions: [],
@@ -323,6 +343,23 @@ export default {
       this.itemToDeleteId = null;
     },
 
+    openImportDialog() {
+      this.selectedFile = null;
+      this.importDialog = true;
+    },
+
+    closeImportDialog() {
+      this.importDialog = false;
+      this.excelFile = null
+    },
+
+    handleFileUpload(event) {
+      // this.selectedFile = event.target.files[0];
+      console.log(event)
+      this.excelFile = event
+
+    },
+
     async loadProvinces() {
       try {
         const response = await this.$axios.get('http://localhost:8000/api/provinces');
@@ -348,19 +385,6 @@ export default {
         const response = await this.$axios.get('http://localhost:8000/api/careers')
         // this.posisiOptions = response.data
         this.posisiOptions = response.data.filter(item => item.tree_lvl === "2" || item.tree_lvl === "3")
-        // const response = await this.$axios.get('http://localhost:8000/api/career_test')
-        // this.posisiOptions = response.data.filter(item => item.parent_id !== null)
-        // const topLevelItems = response.data.filter(item => item.parent_id === null);
-
-        // // Preserve the hierarchy by including children for each top-level item
-        // this.posisiOptions = topLevelItems.map(topLevelItem => {
-        //     const itemWithChildren = { ...topLevelItem };
-
-        //     // Filter children for each top-level item
-        //     itemWithChildren.children = response.data.filter(childItem => childItem.parent_id === topLevelItem.id);
-
-        //     return itemWithChildren;
-        // });
 
       }catch(err){
         console.log(err)
@@ -427,6 +451,21 @@ export default {
       await this.$store.dispatch('Pegawai/downloadExcel', this.selectedCareerCode)
     },
 
+    async importExcel() {
+      try{
+        const dataFile = new FormData()
+        dataFile.append('excel_file', this.excelFile)
+        await this.$store.dispatch('Pegawai/importExcel', dataFile)
+        this.allPegawai()
+        
+        this.closeImportDialog();
+        // console.log('berhasil')
+      }catch(err){
+        console.log(err)
+      }
+
+    },    
+
     async filterItems() {
       this.allPegawai();
     },
@@ -444,7 +483,7 @@ export default {
     selectedCareerCode() {
       this.allPegawai()
       console.log('from filteredItems', this.filteredItems)
-      console.log('from dataPegawai', this.dataPegawais)
+      // console.log('from dataPegawai', this.dataPegawais)
     },
   },
 };

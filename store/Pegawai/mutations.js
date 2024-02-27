@@ -21,4 +21,7 @@ export default {
   SET_FILTERED_DATA(state, filteredData) {
     state.dataPegawais.filteredData = filteredData;
   },
+  SET_FORCING_ALL(state, payload) {
+    state.forcingAllPegawai = payload;
+  },
 };

@@ -1,4 +1,5 @@
 import { watch } from "vue";
+import Swal from 'vue-sweetalert2'
 
 export default{
   async findAll({ commit }, {page, name, id_posisi}){
@@ -25,33 +26,23 @@ export default{
       window.location.href = "/login"
     }
   },
-  // async findAll({ commit }, { page, selectedCareerCode }) {
-  //   try {
-  //     const token = localStorage.getItem('token');
-  //     const params = { page };
 
-  //     // If selectedCareerCode is provided, include it in the request params
-  //     if (selectedCareerCode) {
-  //       params.selectedCareerCode = selectedCareerCode;
-  //     }
+  async forcingAllPegawai({commit}){
+    try{
+      const token = localStorage.getItem('token')
+      const response = await this.$axios.get('api/v1/pegawais', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
 
-  //     const pegawais = await this.$axios.get('api/v1/pegawai', {
-  //       headers: {
-  //         Authorization: `Bearer ${token}`,
-  //       },
-  //       params,
-  //     });
+      commit('SET_FORCING_ALL', response.data)
 
-  //     commit('SET_PEGAWAI', pegawais.data);
-  //   } catch (err) {
-  //     console.log(err);
-
-  //     // Token expired exception
-  //     localStorage.removeItem('token');
-  //     console.log('Harap login ulang');
-  //     window.location.href = "/login";
-  //   }
-  // },
+    }catch(err){
+      console.log(err)
+    }
+  },
+  
 
   async addPegawai({ commit }, newItem) {
     try {
@@ -195,6 +186,62 @@ export default{
       }
 
     }catch(err){
+      console.log(err)
+    }
+  },
+
+  async importExcel({commit} , file){
+    try{
+      const token = localStorage.getItem('token')
+      // const response = await this.$axios.post('api/v1/excel/pegawai/imports', file, {
+      const response = await this.$axios.post('api/v1/excel/pegawai/import', file, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        }
+      })
+
+      console.log(response.data)
+      if(response.status === 201){
+        var toastMixin = this.$swal.mixin({
+          toast: true,
+          icon: 'success',
+          title: 'General Title',
+          animation: false,
+          position: 'top-right',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: false,
+          didOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swal.stopTimer)
+            toast.addEventListener('mouseleave', Swal.resumeTimer)
+          }
+        });
+        toastMixin.fire({
+          animation: true,
+          title: `Berhasil, Data Telah DiImport`
+        });
+      }
+
+    }catch(err){
+      var toastMixin = this.$swal.mixin({
+          toast: true,
+          icon: 'error',
+          title: 'General Title',
+          animation: false,
+          position: 'top-right',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: false,
+          didOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swal.stopTimer)
+            toast.addEventListener('mouseleave', Swal.resumeTimer)
+          }
+        });
+        toastMixin.fire({
+          animation: true,
+          title: 'Tidak Berhasil, Maaf Ada Kesalahan!'
+        });
       console.log(err)
     }
   },
