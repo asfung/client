@@ -14,8 +14,8 @@ export default {
   },
   methods: {
     treeViewHandler(item) {
-      console.log('node clicked:', item);
-      console.log(item[0], 'from TreePegawai')
+      // console.log('node clicked:', item);
+      // console.log(item[0], 'from TreePegawai')
       if(item[0] === undefined){
         item[0] = null
       }

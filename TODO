@@ -8,7 +8,7 @@
 - adding login button in top bar right => DONE
 
 todo
-make the api can accept with form data not only from json 
+make the api can accept with form data not only from json
 https://stackoverflow.com/questions/74471540/multipart-form-data-not-working-on-axios-put-request
 
 
@@ -20,10 +20,15 @@ so basiccaly we use the provinsi in newItem and editedItem is provinsi[] yang di
   name: ??
 }
 
-jadi selectedProvinsi akan dijadikan provinsi pada newItem dan editedItem 
+jadi selectedProvinsi akan dijadikan provinsi pada newItem dan editedItem
 
 
 category = treeview filter
 
 - so the category can synchroning depends on category when it clicked
+
+27 feb 2024
+- make the series title delete
+
+
 

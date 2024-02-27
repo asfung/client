@@ -8,6 +8,7 @@
           <v-text-field v-model="search" label="Search" @input="filterItems" />
         </v-col>
         <v-col class="text-right">
+          <v-btn @click="openImportDialog">Import Excel</v-btn>
           <v-btn @click="downloadExcel" color="error">Download Excel</v-btn>
           <v-btn @click="openNewItemDialog" color="primary">Tambah Pegawai</v-btn>
         </v-col>
@@ -164,6 +165,23 @@
         </v-card>
       </v-dialog>
 
+      <!-- Import Excel Dialog -->
+      <v-dialog v-model="importDialog" max-width="600">
+        <v-card>
+          <v-card-title>Import Excel</v-card-title>
+          <v-card-text>
+            <p>Sebelum Mengimport File, Download Template Terlebih Dahulu</p>
+            <a href="/path/to/excel-template.xlsx" download>Download Template</a>
+            <!-- <input type="file" @change="handleFileUpload" accept=".xls, .xlsx"> -->
+            <v-file-input v-model="excelFile" @change="handleFileUpload" label="Upload Excel" accept=".xls, .xlsx"></v-file-input>
+          </v-card-text>
+          <v-card-actions>
+            <v-btn @click="importExcel" color="primary">Import</v-btn>
+            <v-btn @click="closeImportDialog" color="error">Cancel</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
       <!-- konfirmasi -->
       <v-dialog v-model="deleteConfirmationDialog" max-width="400">
         <v-card>
@@ -187,6 +205,8 @@ export default {
   layout: 'none',
   data() {
     return {
+      excelFile: null,
+      importDialog: false,
       filteredItems: [],
       pagination: { totalItems: 0, rowsPerPage: 5, page: 0 },
       posisiOptions: [],
@@ -336,6 +356,27 @@ export default {
       this.itemToDeleteId = null;
     },
 
+    openImportDialog() {
+      this.selectedFile = null;
+      this.importDialog = true;
+    },
+
+    closeImportDialog() {
+      this.importDialog = false;
+      this.excelFile = null
+    },
+
+    handleFileUpload(event) {
+      // this.selectedFile = event.target.files[0];
+      console.log(event)
+      this.excelFile = event
+
+    },
+
+    async loadProvinces() {
+      try {
+        const response = await this.$axios.get('http://localhost:8000/api/provinces');
+        this.provinceOptions = response.data;
 
     // kita gunakan api nya kaka
     async findAll(){
@@ -371,19 +412,6 @@ export default {
         const response = await this.$axios.get('http://localhost:8000/api/careers')
         // this.posisiOptions = response.data
         this.posisiOptions = response.data.filter(item => item.tree_lvl === "2" || item.tree_lvl === "3")
-        // const response = await this.$axios.get('http://localhost:8000/api/career_test')
-        // this.posisiOptions = response.data.filter(item => item.parent_id !== null)
-        // const topLevelItems = response.data.filter(item => item.parent_id === null);
-
-        // // Preserve the hierarchy by including children for each top-level item
-        // this.posisiOptions = topLevelItems.map(topLevelItem => {
-        //     const itemWithChildren = { ...topLevelItem };
-
-        //     // Filter children for each top-level item
-        //     itemWithChildren.children = response.data.filter(childItem => childItem.parent_id === topLevelItem.id);
-
-        //     return itemWithChildren;
-        // });
 
       }catch(err){
         console.log(err)
@@ -394,9 +422,11 @@ export default {
     async allPegawai(){
       // await this.$store.dispatch('Pegawai/findAll')
       try {
-        await this.$store.dispatch('Pegawai/findAll', this.pagination.page);
+        // await this.$store.dispatch('Pegawai/findAll', this.pagination.page);
+        await this.$store.dispatch('Pegawai/findAll', {page: this.pagination.page, name: this.search, id_posisi: this.selectedCareerCode});
         // await this.$store.dispatch('Pegawai/findAll', { page, selectedCareerCode });
         this.pagination.totalItems = this.dataPegawais.total_items
+        this.filteredItems = this.dataPegawais
       } catch (err) {
         console.error('Error fetching paginated data:', err);
       }
@@ -466,43 +496,28 @@ export default {
       }
     },    
 
-    async searchPegawai(){
-      console.log('Searching for:', this.search);
-      await this.$store.dispatch('Pegawai/searchPegawai', this.search)
-      console.log('Filtered items:', this.filteredItems);
+
+    async downloadExcel() {
+      await this.$store.dispatch('Pegawai/downloadExcel', this.selectedCareerCode)
     },
 
-    async findIdPosisi() {
-      try {
-        await this.$store.dispatch('Pegawai/findIdPosisi', {
-          page: this.pagination.page,
-          id_posisi: this.selectedCareerCode,
-        });
-        this.filteredItems = this.dataPegawais;
-        // this.pagination.totalItems = this.filteredItems.total
-
-      } catch (error) {
-        console.error('Error searching pegawai:', error);
+    async importExcel() {
+      try{
+        const dataFile = new FormData()
+        dataFile.append('excel_file', this.excelFile)
+        await this.$store.dispatch('Pegawai/importExcel', dataFile)
+        this.allPegawai()
+        
+        this.closeImportDialog();
+        // console.log('berhasil')
+      }catch(err){
+        console.log(err)
       }
-    },
 
-    downloadExcel() {
-      const data = this.dataPegawais.data;
-
-      const ws = XLSX.utils.json_to_sheet(data);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, 'Sheet 1');
-
-      const filename = 'pegawai_data.xlsx';
-      XLSX.writeFile(wb, filename);
-    },
+    },    
 
     async filterItems() {
-      if (this.search.trim() !== '') {
-        await this.searchPegawai();
-      } else {
-        this.allPegawai();
-      }
+      this.allPegawai();
     },
   },
   mounted(){
@@ -517,11 +532,8 @@ export default {
   watch: {
     selectedCareerCode() {
       this.allPegawai()
-      // this.allPegawai(1, this.selectedCareerCode);
-      // this.allPegawai(this.pagination.page, this.selectedCareerCode);
-      this.findIdPosisi()
       console.log('from filteredItems', this.filteredItems)
-      console.log('from dataPegawai', this.dataPegawais)
+      // console.log('from dataPegawai', this.dataPegawais)
     },
   },
 };
