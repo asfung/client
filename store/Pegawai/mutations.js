@@ -24,4 +24,7 @@ export default {
   SET_FORCING_ALL(state, payload) {
     state.forcingAllPegawai = payload;
   },
+  SET_SELECTEDID(state, payload){
+    state.selectedId = payload
+  }
 };

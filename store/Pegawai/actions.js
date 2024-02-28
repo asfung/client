@@ -245,6 +245,10 @@ export default{
       console.log(err)
     }
   },
+  
+  setSelectedId({commit}, id){
+    commit('SET_SELECTEDID', id)
+  },
 
   updateFilteredData({ commit }, filteredData) {
     commit('SET_FILTERED_DATA', filteredData);
