@@ -76,7 +76,6 @@
           <v-card-title>New Item</v-card-title>
           <v-card-text>
             <!-- <v-text-field v-model="newItem.id" label="No"></v-text-field> -->
-            <p>{{ newItem.file }}</p>
             <v-file-input v-model="newItem.file" label="Upload Image" accept="image/*"></v-file-input>
             <v-text-field v-model="newItem.nama" label="Nama" required></v-text-field>
             <!-- <v-text-field v-model="newItem.jenis_kelamin" label="Jenis Kelamin"></v-text-field> -->
@@ -270,6 +269,7 @@ export default {
       pegawais: [],
       headers: [
         { text: "No", value: "id" },
+        { text: "Image", value: "file"},
         { text: "Nama", value: "nama" },
         { text: "Jenis Kelamin", value: "jenis_kelamin" },
         { text: "Provinsi", value: "provinsi" },
@@ -289,6 +289,7 @@ export default {
         agama: "",
         posisi: "",
         gaji: "",
+        file: [],
       },
       editedItem: {
         id: 0,
@@ -298,6 +299,7 @@ export default {
         agama: "",
         posisi: "",
         gaji: "",
+        file: [],
       },
     };
   },
@@ -381,22 +383,7 @@ export default {
     closeNewItemDialog() {
       this.newItemDialog = false;
       // clearing the form of new item after save new item
-      this.newItem = { id: "", file: "", nama: "", jenis_kelamin: "", kota: "", agama: "", posisi: "", gaji: "" };
-    },
-    saveNewItem() {
-      const nextId = this.items.length > 0 ? this.items[this.items.length - 1].id + 1 : 1;
-      this.items.push({
-        // id: this.newItem.id,
-        id: nextId,
-        file: this.newItem.file,
-        nama: this.newItem.nama,
-        jenis_kelamin: this.newItem.jenis_kelamin,
-        kota: this.newItem.kota,
-        agama: this.newItem.agama,
-        posisi: this.newItem.posisi,
-        gaji: this.newItem.gaji,
-      });
-      this.closeNewItemDialog();
+      this.newItem = { id: "", file: null, nama: "", jenis_kelamin: "", provinsi: "", agama: "", posisi: "", gaji: "" };
     },
     openEditItemDialog(item) {
       this.editedItem = { ...item };
@@ -448,27 +435,9 @@ export default {
       try {
         const response = await this.$axios.get('http://localhost:8000/api/provinces');
         this.provinceOptions = response.data;
-      }catch(err){
-        console.log(err)
-      }
-    },
 
-    // kita gunakan api nya kaka
-    async findAll(){
-      try{
-        const token = localStorage.getItem('token')
-        const pegawais = await axios.get('http://localhost:8000/api/v1/pegawai', {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        
-        this.items = pegawais.data 
-      }catch(err){
-        console.log(err)
-        localStorage.removeItem('token')
-        console.log('harap login ulang')
-        window.location.href = "/login"
+      } catch (error) {
+        console.error('Error loading provinces:', error);
       }
     },
 
@@ -531,48 +500,25 @@ export default {
       }
     },
 
-    async editById(){
-      try{
-        const formData = new FormData()
-        // formData.append('file', this.editedItem.file);
+    async editById() {
+    try {
+        const formData = new FormData();
+        formData.append('_method', 'put');
+        formData.append('file', this.newItem.file);
         formData.append('nama', this.editedItem.nama);
         formData.append('jenis_kelamin', this.editedItem.jenis_kelamin);
-        formData.append('kota', this.editedItem.kota);
+        formData.append('provinsi', this.editedItem.provinsi);
         formData.append('agama', this.editedItem.agama);
         formData.append('posisi', this.editedItem.posisi);
         formData.append('gaji', this.editedItem.gaji);
-        
-        if (this.editedItem.file instanceof File) {
-          formData.append('file', this.editedItem.file);
-        }
 
-        const token = localStorage.getItem('token');
-        const response = await axios.put(`http://localhost:8000/api/v1/pegawai/${this.editedItem.id}`, formData ,{
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data',
-          }
-        });
-
-        // edit pada editedItem aray
-        if (response.status === 200) {
-          const index = this.items.findIndex((item) => item.id === this.editedItem.id);
-        if (index !== -1) {
-          this.$set(this.items, index, { ...this.editedItem });
-          // this.$set(this.items, index, { ...this.items[index], ...this.editedItem });
-          console.log(this.editedItem.file.name)
-        }
+        await this.$store.dispatch('Pegawai/editPegawai', { id: this.editedItem.id, formData });
+        this.allPegawai()
         this.closeEditItemDialog();
-        } else {
-          console.error('gagal edit pegawai');
-        }
-
-        // this.$set(this.items, index, { ...this.editedItem });
-        // this.closeEditItemDialog();   
-      }catch(err){
-
+      } catch (err) {
+        console.error('error:', err);
       }
-    },    
+    },
 
 
     async downloadExcel() {
