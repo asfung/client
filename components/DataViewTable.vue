@@ -448,6 +448,10 @@ export default {
       try {
         const response = await this.$axios.get('http://localhost:8000/api/provinces');
         this.provinceOptions = response.data;
+      }catch(err){
+        console.log(err)
+      }
+    },
 
     // kita gunakan api nya kaka
     async findAll(){
