@@ -1,4 +1,5 @@
 export default () => ({
   dataPegawais: [],
-  forcingAllPegawai: []
+  forcingAllPegawai: [],
+  selectedId: null,
 })

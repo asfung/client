@@ -5,4 +5,7 @@ export default {
   getForcingAll(state) {
     return state.forcingAllPegawai
   },
+  getSelectedId(state) {
+    return state.selectedId
+  },
 };

@@ -30,6 +30,7 @@
         :options.sync="pagination"
         disable-pagination
         hide-default-footer
+        :loading="loadingData"
         >
           <template v-slot:item="props">
             <tr>
@@ -97,7 +98,7 @@
               outlined
               dense
             ></v-autocomplete>
-            <v-autocomplete
+            <!-- <v-autocomplete
               v-model="newItem.posisi"
               :items="posisiOptions"
               item-text="name"
@@ -105,7 +106,16 @@
               label="Posisi Kerja"
               outlined
               dense
-            ></v-autocomplete>
+              @click="openPosisiDialog"
+            ></v-autocomplete> -->
+            <v-text-field
+              v-model="newItem.posisi"
+              label="Posisi Kerja"
+              outlined
+              dense
+              @click="openPosisiDialog"
+              readonly
+            ></v-text-field>
             <v-text-field v-model="newItem.gaji" label="Salary" type="number"></v-text-field>
           </v-card-text>
           <v-card-actions>
@@ -145,7 +155,7 @@
               dense
             ></v-autocomplete>
             <!-- <v-text-field v-model="editedItem.posisi" label="Posisi Kerja"></v-text-field> -->
-            <v-autocomplete
+            <!-- <v-autocomplete
               v-model="editedItem.posisi"
               :items="posisiOptions"
               item-text="name"
@@ -153,7 +163,15 @@
               label="Posisi Kerja"
               outlined
               dense
-            ></v-autocomplete>
+            ></v-autocomplete> -->
+            <v-text-field
+              v-model="editedItem.posisi"
+              label="Posisi Kerja"
+              outlined
+              dense
+              @click="openEditPosisiDialog"
+              readonly
+            ></v-text-field>
             <v-text-field v-model="editedItem.gaji" label="Salary" type="number"></v-text-field>
           </v-card-text>
           <v-card-actions>
@@ -170,13 +188,43 @@
           <v-card-title>Import Excel</v-card-title>
           <v-card-text>
             <p>Sebelum Mengimport File, Download Template Terlebih Dahulu</p>
-            <a href="/path/to/excel-template.xlsx" download>Download Template</a>
+            <a href="/template_pegawai.xlsx" download>Download Template</a>
             <!-- <input type="file" @change="handleFileUpload" accept=".xls, .xlsx"> -->
             <v-file-input v-model="excelFile" @change="handleFileUpload" label="Upload Excel" accept=".xls, .xlsx"></v-file-input>
           </v-card-text>
           <v-card-actions>
             <v-btn @click="importExcel" color="primary">Import</v-btn>
             <v-btn @click="closeImportDialog" color="error">Cancel</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
+      <!-- posisi dialog -->
+      <v-dialog v-model="posisiDialog" max-width="600">
+        <v-card>
+          <v-card-title>Select Posisi</v-card-title>
+          <v-card-text>
+            <!-- <v-treeview :items="posisiOptions" dense activatable @update:active="updateSelectedPosisi"></v-treeview> -->
+            <TreeInput />
+          </v-card-text>
+          <v-card-actions>
+            <v-btn @click="closePosisiDialog" color="primary">Select</v-btn>
+            <v-btn @click="cancelPosisiSelection" color="error">Cancel</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
+      <!-- edit posisi dialog -->
+      <v-dialog v-model="editPosisiDialog" max-width="600">
+        <v-card>
+          <v-card-title>Select Posisi</v-card-title>
+          <v-card-text>
+            <!-- <v-treeview :items="posisiOptions" dense activatable @update:active="updateSelectedPosisi"></v-treeview> -->
+            <TreeInput />
+          </v-card-text>
+          <v-card-actions>
+            <v-btn @click="closeEditPosisiDialog" color="primary">Select</v-btn>
+            <v-btn @click="cancelEditPosisiSelection" color="error">Cancel</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -204,6 +252,9 @@ export default {
   layout: 'none',
   data() {
     return {
+      editPosisiDialog: false,
+      posisiDialog: false,
+      loadingData: false,
       excelFile: null,
       importDialog: false,
       filteredItems: [],
@@ -257,13 +308,12 @@ export default {
       dataPegawais: state => state.Pegawai.dataPegawais
     }),
 
-    // filteredItems() {
-    //   return this.dataPegawais.data;
-    // },
-
-
     selectedCareerCode() {
       return this.$store.getters['Pegawai/TreeFilter/selectedCareerCode'];
+    },
+
+    selectedId() {
+      return this.$store.getters['Pegawai/getSelectedId'];
     },
 
     filteredItemsTable() {
@@ -272,12 +322,6 @@ export default {
         return this.dataPegawais.data
       }
 
-      // Filter the data based on the selected career code
-      // return this.dataPegawais.data.filter((pegawai) =>
-      //   pegawai.id_posisi === this.selectedCareerCode  ||
-      //   console.log(pegawai)
-      // );
-      // return this.dataPegawais.filteredData;
       return this.filteredItems.data;
     },
 
@@ -307,6 +351,32 @@ export default {
     },
     // pagination close
 
+    // posisi kerja treeview open
+    openPosisiDialog() {
+      this.posisiDialog = true;
+    },
+    closePosisiDialog() {
+      this.posisiDialog = false;
+    },
+    cancelPosisiSelection() {
+      this.closePosisiDialog();
+    },
+    // posis kerja treeview close
+
+
+    // edit posisi kerja open
+    openEditPosisiDialog() {
+      this.editPosisiDialog = true;
+    },
+    closeEditPosisiDialog() {
+      this.editPosisiDialog = false;
+    },
+    cancelEditPosisiSelection() {
+      this.closeEditPosisiDialog();
+    },
+    // edit posisi kerja close
+
+
     openNewItemDialog() {
       this.newItemDialog = true;
     },
@@ -318,6 +388,7 @@ export default {
     openEditItemDialog(item) {
       this.editedItem = { ...item };
       this.editItemDialog = true;
+      console.log(this.editedItem)
     },
     closeEditItemDialog() {
       this.editItemDialog = false;
@@ -393,6 +464,7 @@ export default {
 
     // vuex
     async allPegawai(){
+      this.loadingData = true
       // await this.$store.dispatch('Pegawai/findAll')
       try {
         // await this.$store.dispatch('Pegawai/findAll', this.pagination.page);
@@ -402,6 +474,8 @@ export default {
         this.filteredItems = this.dataPegawais
       } catch (err) {
         console.error('Error fetching paginated data:', err);
+      }finally{
+        this.loadingData = false
       }
     },
 
@@ -457,14 +531,14 @@ export default {
         dataFile.append('excel_file', this.excelFile)
         await this.$store.dispatch('Pegawai/importExcel', dataFile)
         this.allPegawai()
-        
+
         this.closeImportDialog();
         // console.log('berhasil')
       }catch(err){
         console.log(err)
       }
 
-    },    
+    },
 
     async filterItems() {
       this.allPegawai();
@@ -476,15 +550,21 @@ export default {
     this.loadAgama()
     this.loadPosisi()
     this.selectedCareerCode
+    this.selectedId
     // console.log(this.dataPegawais.total_items)
   },
 
   watch: {
     selectedCareerCode() {
       this.allPegawai()
-      console.log('from filteredItems', this.filteredItems)
+      // console.log('from filteredItems', this.filteredItems)
       // console.log('from dataPegawai', this.dataPegawais)
     },
+    selectedId(){
+      console.log(this.selectedId)
+      this.newItem.posisi = this.selectedId.name
+      this.editedItem.posisi = this.selectedId.name
+    }
   },
 };
 </script>
