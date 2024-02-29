@@ -8,4 +8,7 @@ export default {
   getSelectedId(state) {
     return state.selectedId
   },
+  getHeaders(state) {
+    return state.headers
+  },
 };

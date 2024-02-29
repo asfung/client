@@ -1,4 +1,3 @@
-import { watch } from "vue";
 import Swal from 'vue-sweetalert2'
 
 export default{
@@ -6,9 +5,6 @@ export default{
     try{
       const token = localStorage.getItem('token')
       const pegawais = await this.$axios.get('api/v1/pegawai', {
-        headers: {
-          Authorization: `Bearer ${token}`
-        },
         params: {
           page: page,
           name: name,
@@ -30,19 +26,14 @@ export default{
   async forcingAllPegawai({commit}){
     try{
       const token = localStorage.getItem('token')
-      const response = await this.$axios.get('api/v1/pegawais', {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      })
-
+      const response = await this.$axios.get('api/v1/pegawais')
       commit('SET_FORCING_ALL', response.data)
 
     }catch(err){
       console.log(err)
     }
   },
-  
+
 
   async addPegawai({ commit }, newItem) {
     try {
@@ -59,7 +50,6 @@ export default{
 
       const pegawaiTambah = await this.$axios.post('api/v1/pegawai', formData, {
         headers: {
-          Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data',
         },
       });
@@ -75,11 +65,7 @@ export default{
   async deletePegawai({ commit }, id) {
     try {
       const token = localStorage.getItem('token');
-      await this.$axios.delete(`api/v1/pegawai/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await this.$axios.delete(`api/v1/pegawai/${id}`);
 
       commit('DELETE_PEGAWAI', id);
     } catch (err) {
@@ -92,7 +78,6 @@ export default{
       const token = localStorage.getItem('token');
       const response = await this.$axios.post(`api/v1/pegawai/${id}`, formData, {
         headers: {
-          Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data',
         },
       });
@@ -111,11 +96,7 @@ export default{
   async searchPegawai({commit}, nama){
     try{
       const token = localStorage.getItem('token')
-      const pegawai = await this.$axios.get(`api/v1/pegawai/search?nama=${nama}`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
+      const pegawai = await this.$axios.get(`api/v1/pegawai/search?nama=${nama}`);
       commit('SET_PEGAWAI_DATA', pegawai.data)
       // console.log(pegawai.data)
     }catch(err){
@@ -128,11 +109,7 @@ export default{
     try {
       const token = localStorage.getItem('token')
       if(id_posisi !== null){
-        const response = await this.$axios.get(`http://localhost:8000/api/v1/pegawai/cari?id_posisi=${id_posisi}&page=${page}`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
+        const response = await this.$axios.get(`http://localhost:8000/api/v1/pegawai/cari?id_posisi=${id_posisi}&page=${page}`);
         // commit('SET_PEGAWAI_DATA', response.data);
         commit('SET_PEGAWAI_DATA', response.data.data);
         // commit('SET_FILTERED_DATA', filteredData);
@@ -148,40 +125,30 @@ export default{
       if(id_posisi !== null){
         const response = await this.$axios.get(`api/v1/excel/pegawai?id_posisi=${id_posisi}`, {
           responseType: 'blob',
-          headers:{
-            Authorization: `Bearer ${token}`
-          }
         })
         const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-        // Create a link element to trigger the download
+
         const link = document.createElement('a');
         link.href = window.URL.createObjectURL(blob);
         link.download = `pegawai_${id_posisi}.xlsx`;
 
-        // Append the link to the document and trigger the click event
         document.body.appendChild(link);
         link.click();
 
-        // Clean up by removing the link from the document
         document.body.removeChild(link);
       }else{
         const response = await this.$axios.get(`api/v1/excel/pegawai?id_posisi=`, {
           responseType: 'blob',
-          headers:{
-            Authorization: `Bearer ${token}`
-          }
         })
         const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-        // Create a link element to trigger the download
+
         const link = document.createElement('a');
         link.href = window.URL.createObjectURL(blob);
         link.download = 'pegawai_all.xlsx';
 
-        // Append the link to the document and trigger the click event
         document.body.appendChild(link);
         link.click();
 
-        // Clean up by removing the link from the document
         document.body.removeChild(link);
       }
 
@@ -196,7 +163,6 @@ export default{
       // const response = await this.$axios.post('api/v1/excel/pegawai/imports', file, {
       const response = await this.$axios.post('api/v1/excel/pegawai/import', file, {
         headers: {
-          Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data',
         }
       })
@@ -245,7 +211,52 @@ export default{
       console.log(err)
     }
   },
-  
+
+  async loadProvinces({commit}) {
+    try {
+      const response = await this.$axios.get('api/provinces');
+      commit('SET_LOADPROVINCES',response.data)
+    } catch (error) {
+      console.error('Error loading provinces:', error);
+    }
+  },
+
+  async loadAgama({commit}) {
+    try {
+      const response = await this.$axios.get('api/religions');
+      commit('SET_LOADAGAMA', response.data)
+    } catch (error) {
+      console.error('Error loading provinces:', error);
+    }
+  },
+
+  async getImage({commit}, namefile){
+    try{
+      const filename = namefile.split('/')[1];
+      const response =  await this.$axios.get(`api/storage/${filename}`)
+      // return  await this.$axios.get(`api/storage/1708398880_staircase.jpg`)
+      // console.log(`api/storage/${namefile}`)
+      //console.log(response)
+      return response.data
+    }catch(err){
+      console.log(err)
+    }
+  },
+
+  // ========= DEPRECATED =========
+  async loadPosisi(){
+    try{
+      const response = await this.$axios.get('api/careers')
+      // this.posisiOptions = response.data
+      // this.posisiOptions = response.data.filter(item => item.tree_lvl === "2" || item.tree_lvl === "3")
+
+    }catch(err){
+      console.log(err)
+    }
+  },
+  // ========= DEPRECATED =========
+
+
   setSelectedId({commit}, id){
     commit('SET_SELECTEDID', id)
   },
