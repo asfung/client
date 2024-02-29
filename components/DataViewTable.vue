@@ -36,7 +36,11 @@
             <tr>
               <td>{{ props.item.id }}</td>
               <td>
-                <img :src="`http://localhost:8000/storage/${props.item.file}`" alt="gambar" style="max-width: 50px; max-height: 50px;">
+                <!-- <img :src="`http://localhost:8000/storage/${props.item.file}`" alt="gambar" style="max-width: 50px; max-height: 50px;"> -->
+                <!-- <p>{{ getImage(props.item.file) }}</p>
+                <img :src="getImage(props.item.file)" alt="gambar" style="max-width: 50px; max-height: 50px;" /> -->
+                <img :src="'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5OjcBCgoKDQwNGg8PGjclHyU3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N//AABEIAJQAlAMBIgACEQEDEQH/xAAcAAEAAgMBAQEAAAAAAAAAAAAAAQUCAwQGCAf/xAA3EAACAQMBBAUJCAMAAAAAAAAAAQIDBBEFEiExkxMVQVFVI0JSYXGRscHRBhYiJDM0cqE1gZL/xAAXAQEBAQEAAAAAAAAAAAAAAAAAAQMC/8QAFREBAQAAAAAAAAAAAAAAAAAAAAH/2gAMAwEAAhEDEQA/AP3EESzjcFw3gSAAAIyACJBhOpCmm5yUUuOWBmCrq6tFPFKm5Lvk8GC1eed9GP8A0BbElfR1WhNpVFKD73vR3RnGcVKDTT7UwMgDFZ2sdgGQAAAEcQGQSAAAABgADGc4wg5SeIpZbMjh1iTjZtLzpJAcN3qNWq3Gk3CHq4s4m23lvL72QCgAAgbbe4q28s0pe2PYzUAPR2lzG5pbUdzW5x7jeUOlVHC8jFcJppl8RQAxSe1lvcBJIAAAAAQ1lBLCwBIAAHDrC/J57pI7nvRx6lDNlUXdh/2BQgAqABCWAJAAHRp/72j7T0R5/TI7V7T9WX/RfkUJAAAAAAAAAAAAAcupTdOzqNLOVs+86jVc0+loVId8WB5oAFQAAAAAdel1HTu4pRT2/wAPsL8pdFhtXE5+jHHvLoihGd+CSMb8gSAAAAAEcSQAAAAx4+wlrJIHmbim6VepTfmvsNZ26rTcLuUsbprK+BxFAJgBAAAXOjU3GhKb8+W7/RYJ5bRosIbFnST47Ofeb8LOSKkAACGCQIwCQAAAEPcgnlEgAAGBx6pRVW2cvOhvXzKE9Jc/tqv8H8DzZQAAQN1nQdzXjDzeMvYaSw0X9xU/h8wq5XAkAgAjtJAAAAAAAAAAACGEDXXuKVBZqTS9XaBF28WtVv0GebO6/v3cLo6a2afbnizhKgAABYaM/wAzNd8PmV5nSqSpVFUg8SiFemyOJxW2pUqqSqeTl6+B2pprKaaIJAAAx37XqMgAAAAA0XN3Sto5nLL7IriwNz3ppHNXvaFumpzzL0Y72VdzqFatui+jh3LizjA7rjU61TdS8nH1b2cTbk228t9rIBUCFntJAAAAAAANtC5rW78lNpd3YzUALe31WMt1eGw/SW9FhCpCpHahJSXemeYM6VWpRltUpOL+JFenBWWuqxliNxiL9JcCyTUkmmmnwaAkAAV+pXvQLoqWOka3t+aUzbk25Ntvi2zKtN1as5vfmTMAgACgAAAAW8AQlgkAAAAIS3kgAAAB02d5UtZJJuVPti/kcwA9PSnGpTjODzFrKBTWV5K3ouGMrabRBFfPFrresVrqjRlq18o1JqLaryya3r2srTKdz1re7c6uw108sY2ckg0cMqGuaxUr2dOWrX2K8kpeXllfjcd3uNUPtBrMoRk9VvMtZ/Wl9QCwT1/rPit7zpDr/WfFb3nSAAdf6z4re86Q6/1nxW950gAHX+s+K3vOkOv9Z8VvedIAB1/rPit7zpDr/WfFb3nSAAdf6z4re86Q6/1nxW950gAHX+s+K3vOkRL7Qayllare8+X1AFEL7Q614rec+X1H3h1nP+VvNyz+vL6gEE/eDWVw1S858vqAAP/Z'" alt="gambar" style="max-width: 50px; max-height: 50px;">
+                <!-- <img v-if="imageUrl" :src="imageUrl" alt="gambar" style="max-width: 50px; max-height: 50px;"> -->
               </td>
               <td>{{ props.item.nama }}</td>
               <td>{{ props.item.jenis_kelamin }}</td>
@@ -98,16 +102,6 @@
               outlined
               dense
             ></v-autocomplete>
-            <!-- <v-autocomplete
-              v-model="newItem.posisi"
-              :items="posisiOptions"
-              item-text="name"
-              item-value="name"
-              label="Posisi Kerja"
-              outlined
-              dense
-              @click="openPosisiDialog"
-            ></v-autocomplete> -->
             <v-text-field
               v-model="newItem.posisi"
               label="Posisi Kerja"
@@ -154,16 +148,6 @@
               outlined
               dense
             ></v-autocomplete>
-            <!-- <v-text-field v-model="editedItem.posisi" label="Posisi Kerja"></v-text-field> -->
-            <!-- <v-autocomplete
-              v-model="editedItem.posisi"
-              :items="posisiOptions"
-              item-text="name"
-              item-value="name"
-              label="Posisi Kerja"
-              outlined
-              dense
-            ></v-autocomplete> -->
             <v-text-field
               v-model="editedItem.posisi"
               label="Posisi Kerja"
@@ -204,7 +188,6 @@
         <v-card>
           <v-card-title>Select Posisi</v-card-title>
           <v-card-text>
-            <!-- <v-treeview :items="posisiOptions" dense activatable @update:active="updateSelectedPosisi"></v-treeview> -->
             <TreeInput />
           </v-card-text>
           <v-card-actions>
@@ -219,7 +202,6 @@
         <v-card>
           <v-card-title>Select Posisi</v-card-title>
           <v-card-text>
-            <!-- <v-treeview :items="posisiOptions" dense activatable @update:active="updateSelectedPosisi"></v-treeview> -->
             <TreeInput />
           </v-card-text>
           <v-card-actions>
@@ -234,7 +216,6 @@
         <v-card>
           <v-card-title>r u sure?</v-card-title>
           <v-card-actions>
-            <!-- <v-btn @click="deleteItemConfirmed" color="error">Yes</v-btn> -->
             <v-btn @click="deletePegawai" color="error">Yes</v-btn>
             <v-btn @click="cancelDelete" color="primary">No</v-btn>
           </v-card-actions>
@@ -247,7 +228,6 @@
 
 <script>
 import { mapState } from 'vuex'
-import * as XLSX from 'xlsx';
 export default {
   layout: 'none',
   data() {
@@ -259,25 +239,12 @@ export default {
       importDialog: false,
       filteredItems: [],
       pagination: { totalItems: 0, rowsPerPage: 5, page: 0 },
-      posisiOptions: [],
-      religionOptions: [],
-      provinceOptions: [],
       deleteConfirmationDialog: false,
       itemToDeleteId: null,
       genderOptions: ['Laki-Laki', 'Perempuan'],
       items: [],
       pegawais: [],
-      headers: [
-        { text: "No", value: "id" },
-        { text: "Image", value: "file"},
-        { text: "Nama", value: "nama" },
-        { text: "Jenis Kelamin", value: "jenis_kelamin" },
-        { text: "Provinsi", value: "provinsi" },
-        { text: "Agama", value: "agama" },
-        { text: "Posisi Kerja", value: "posisi" },
-        { text: "gaji", value: "salary" },
-        { text: "Actions", value: "actions", sortable: false },
-      ],
+      headers: this.$store.state.Pegawai.headers,
       search: "",
       newItemDialog: false,
       editItemDialog: false,
@@ -305,8 +272,15 @@ export default {
   },
   computed: {
     ...mapState({
-      dataPegawais: state => state.Pegawai.dataPegawais
+      dataPegawais: state => state.Pegawai.dataPegawais,
+      provinceOptions: state => state.Pegawai.provinceOptions,
+      religionOptions: state => state.Pegawai.religionOptions,
+      // headers: state => state.Pegawai.headers
     }),
+
+    getImageUrl(namefile) {
+      return this.$store.dispatch('Pegawai/getImage', namefile);
+    },
 
     selectedCareerCode() {
       return this.$store.getters['Pegawai/TreeFilter/selectedCareerCode'];
@@ -425,7 +399,6 @@ export default {
     },
 
     handleFileUpload(event) {
-      // this.selectedFile = event.target.files[0];
       console.log(event)
       this.excelFile = event
 
@@ -433,9 +406,7 @@ export default {
 
     async loadProvinces() {
       try {
-        const response = await this.$axios.get('http://localhost:8000/api/provinces');
-        this.provinceOptions = response.data;
-
+        await this.$store.dispatch('Pegawai/loadProvinces')
       } catch (error) {
         console.error('Error loading provinces:', error);
       }
@@ -443,33 +414,18 @@ export default {
 
     async loadAgama() {
       try {
-        const response = await this.$axios.get('http://localhost:8000/api/religions');
-        this.religionOptions = response.data;
-
+        await this.$store.dispatch('Pegawai/loadAgama')
       } catch (error) {
         console.error('Error loading provinces:', error);
       }
     },
 
-    async loadPosisi(){
-      try{
-        const response = await this.$axios.get('http://localhost:8000/api/careers')
-        // this.posisiOptions = response.data
-        this.posisiOptions = response.data.filter(item => item.tree_lvl === "2" || item.tree_lvl === "3")
-
-      }catch(err){
-        console.log(err)
-      }
-    },
 
     // vuex
     async allPegawai(){
       this.loadingData = true
-      // await this.$store.dispatch('Pegawai/findAll')
       try {
-        // await this.$store.dispatch('Pegawai/findAll', this.pagination.page);
         await this.$store.dispatch('Pegawai/findAll', {page: this.pagination.page, name: this.search, id_posisi: this.selectedCareerCode});
-        // await this.$store.dispatch('Pegawai/findAll', { page, selectedCareerCode });
         this.pagination.totalItems = this.dataPegawais.total_items
         this.filteredItems = this.dataPegawais
       } catch (err) {
@@ -520,7 +476,6 @@ export default {
       }
     },
 
-
     async downloadExcel() {
       await this.$store.dispatch('Pegawai/downloadExcel', this.selectedCareerCode)
     },
@@ -531,13 +486,24 @@ export default {
         dataFile.append('excel_file', this.excelFile)
         await this.$store.dispatch('Pegawai/importExcel', dataFile)
         this.allPegawai()
-
         this.closeImportDialog();
-        // console.log('berhasil')
       }catch(err){
         console.log(err)
       }
+    },
 
+    async getImage(namefile){
+      try{
+        const response = await this.$store.dispatch('Pegawai/getImage', namefile)
+        // console.log(response)
+        return response
+      }catch(err){
+        console.log(err)
+      }
+    },
+
+    getImageGetter(name){
+      this.getImage(name)
     },
 
     async filterItems() {
@@ -548,17 +514,14 @@ export default {
     this.allPegawai()
     this.loadProvinces()
     this.loadAgama()
-    this.loadPosisi()
     this.selectedCareerCode
     this.selectedId
-    // console.log(this.dataPegawais.total_items)
+    // this.getImage(this.props.item.file)
   },
 
   watch: {
     selectedCareerCode() {
       this.allPegawai()
-      // console.log('from filteredItems', this.filteredItems)
-      // console.log('from dataPegawai', this.dataPegawais)
     },
     selectedId(){
       console.log(this.selectedId)

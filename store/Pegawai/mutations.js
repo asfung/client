@@ -26,5 +26,11 @@ export default {
   },
   SET_SELECTEDID(state, payload){
     state.selectedId = payload
+  },
+  SET_LOADPROVINCES(state, payload){
+    state.provinceOptions = payload
+  },
+  SET_LOADAGAMA(state, payload){
+    state.religionOptions = payload
   }
 };

@@ -49,6 +49,7 @@ export default {
   plugins: [
     '~/plugins/chart.js',
     '~/plugins/hello.js',
+    '~/plugins/axios.js',
     // '~/plugins/posisiChart.js',
   ],
 
