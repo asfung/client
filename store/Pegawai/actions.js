@@ -243,6 +243,15 @@ export default{
     }
   },
 
+  async getImageBase64({commit}, namefile){
+    try{
+      const response =  await this.$axios.get(`api/image?filename=${namefile}`)
+      return response.data
+    }catch(err){
+      console.log(err)
+    }
+  },
+
   // ========= DEPRECATED =========
   async loadPosisi(){
     try{

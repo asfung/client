@@ -37,9 +37,12 @@
               <td>{{ props.item.id }}</td>
               <td>
                 <!-- <img :src="`http://localhost:8000/storage/${props.item.file}`" alt="gambar" style="max-width: 50px; max-height: 50px;"> -->
-                <!-- <p>{{ getImage(props.item.file) }}</p>
-                <img :src="getImage(props.item.file)" alt="gambar" style="max-width: 50px; max-height: 50px;" /> -->
-                <img :src="'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5OjcBCgoKDQwNGg8PGjclHyU3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N//AABEIAJQAlAMBIgACEQEDEQH/xAAcAAEAAgMBAQEAAAAAAAAAAAAAAQUCAwQGCAf/xAA3EAACAQMBBAUJCAMAAAAAAAAAAQIDBBEFEiExkxMVQVFVI0JSYXGRscHRBhYiJDM0cqE1gZL/xAAXAQEBAQEAAAAAAAAAAAAAAAAAAQMC/8QAFREBAQAAAAAAAAAAAAAAAAAAAAH/2gAMAwEAAhEDEQA/AP3EESzjcFw3gSAAAIyACJBhOpCmm5yUUuOWBmCrq6tFPFKm5Lvk8GC1eed9GP8A0BbElfR1WhNpVFKD73vR3RnGcVKDTT7UwMgDFZ2sdgGQAAAEcQGQSAAAABgADGc4wg5SeIpZbMjh1iTjZtLzpJAcN3qNWq3Gk3CHq4s4m23lvL72QCgAAgbbe4q28s0pe2PYzUAPR2lzG5pbUdzW5x7jeUOlVHC8jFcJppl8RQAxSe1lvcBJIAAAAAQ1lBLCwBIAAHDrC/J57pI7nvRx6lDNlUXdh/2BQgAqABCWAJAAHRp/72j7T0R5/TI7V7T9WX/RfkUJAAAAAAAAAAAAAcupTdOzqNLOVs+86jVc0+loVId8WB5oAFQAAAAAdel1HTu4pRT2/wAPsL8pdFhtXE5+jHHvLoihGd+CSMb8gSAAAAAEcSQAAAAx4+wlrJIHmbim6VepTfmvsNZ26rTcLuUsbprK+BxFAJgBAAAXOjU3GhKb8+W7/RYJ5bRosIbFnST47Ofeb8LOSKkAACGCQIwCQAAAEPcgnlEgAAGBx6pRVW2cvOhvXzKE9Jc/tqv8H8DzZQAAQN1nQdzXjDzeMvYaSw0X9xU/h8wq5XAkAgAjtJAAAAAAAAAAACGEDXXuKVBZqTS9XaBF28WtVv0GebO6/v3cLo6a2afbnizhKgAABYaM/wAzNd8PmV5nSqSpVFUg8SiFemyOJxW2pUqqSqeTl6+B2pprKaaIJAAAx37XqMgAAAAA0XN3Sto5nLL7IriwNz3ppHNXvaFumpzzL0Y72VdzqFatui+jh3LizjA7rjU61TdS8nH1b2cTbk228t9rIBUCFntJAAAAAAANtC5rW78lNpd3YzUALe31WMt1eGw/SW9FhCpCpHahJSXemeYM6VWpRltUpOL+JFenBWWuqxliNxiL9JcCyTUkmmmnwaAkAAV+pXvQLoqWOka3t+aUzbk25Ntvi2zKtN1as5vfmTMAgACgAAAAW8AQlgkAAAAIS3kgAAAB02d5UtZJJuVPti/kcwA9PSnGpTjODzFrKBTWV5K3ouGMrabRBFfPFrresVrqjRlq18o1JqLaryya3r2srTKdz1re7c6uw108sY2ckg0cMqGuaxUr2dOWrX2K8kpeXllfjcd3uNUPtBrMoRk9VvMtZ/Wl9QCwT1/rPit7zpDr/WfFb3nSAAdf6z4re86Q6/1nxW950gAHX+s+K3vOkOv9Z8VvedIAB1/rPit7zpDr/WfFb3nSAAdf6z4re86Q6/1nxW950gAHX+s+K3vOkRL7Qayllare8+X1AFEL7Q614rec+X1H3h1nP+VvNyz+vL6gEE/eDWVw1S858vqAAP/Z'" alt="gambar" style="max-width: 50px; max-height: 50px;">
+                <!-- <p>{{ getImageBase64Getter(props.item.file) }}</p> -->
+                <!-- <p>{{ imageSrc(props.item.file) }}</p> -->
+                <!-- <img :src="getImage(props.item.file)" alt="gambar" style="max-width: 50px; max-height: 50px;" /> -->
+                <img :src="'data:image/*;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5OjcBCgoKDQwNGg8PGjclHyU3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N//AABEIAJQAlAMBIgACEQEDEQH/xAAcAAEAAgMBAQEAAAAAAAAAAAAAAQUCAwQGCAf/xAA3EAACAQMBBAUJCAMAAAAAAAAAAQIDBBEFEiExkxMVQVFVI0JSYXGRscHRBhYiJDM0cqE1gZL/xAAXAQEBAQEAAAAAAAAAAAAAAAAAAQMC/8QAFREBAQAAAAAAAAAAAAAAAAAAAAH/2gAMAwEAAhEDEQA/AP3EESzjcFw3gSAAAIyACJBhOpCmm5yUUuOWBmCrq6tFPFKm5Lvk8GC1eed9GP8A0BbElfR1WhNpVFKD73vR3RnGcVKDTT7UwMgDFZ2sdgGQAAAEcQGQSAAAABgADGc4wg5SeIpZbMjh1iTjZtLzpJAcN3qNWq3Gk3CHq4s4m23lvL72QCgAAgbbe4q28s0pe2PYzUAPR2lzG5pbUdzW5x7jeUOlVHC8jFcJppl8RQAxSe1lvcBJIAAAAAQ1lBLCwBIAAHDrC/J57pI7nvRx6lDNlUXdh/2BQgAqABCWAJAAHRp/72j7T0R5/TI7V7T9WX/RfkUJAAAAAAAAAAAAAcupTdOzqNLOVs+86jVc0+loVId8WB5oAFQAAAAAdel1HTu4pRT2/wAPsL8pdFhtXE5+jHHvLoihGd+CSMb8gSAAAAAEcSQAAAAx4+wlrJIHmbim6VepTfmvsNZ26rTcLuUsbprK+BxFAJgBAAAXOjU3GhKb8+W7/RYJ5bRosIbFnST47Ofeb8LOSKkAACGCQIwCQAAAEPcgnlEgAAGBx6pRVW2cvOhvXzKE9Jc/tqv8H8DzZQAAQN1nQdzXjDzeMvYaSw0X9xU/h8wq5XAkAgAjtJAAAAAAAAAAACGEDXXuKVBZqTS9XaBF28WtVv0GebO6/v3cLo6a2afbnizhKgAABYaM/wAzNd8PmV5nSqSpVFUg8SiFemyOJxW2pUqqSqeTl6+B2pprKaaIJAAAx37XqMgAAAAA0XN3Sto5nLL7IriwNz3ppHNXvaFumpzzL0Y72VdzqFatui+jh3LizjA7rjU61TdS8nH1b2cTbk228t9rIBUCFntJAAAAAAANtC5rW78lNpd3YzUALe31WMt1eGw/SW9FhCpCpHahJSXemeYM6VWpRltUpOL+JFenBWWuqxliNxiL9JcCyTUkmmmnwaAkAAV+pXvQLoqWOka3t+aUzbk25Ntvi2zKtN1as5vfmTMAgACgAAAAW8AQlgkAAAAIS3kgAAAB02d5UtZJJuVPti/kcwA9PSnGpTjODzFrKBTWV5K3ouGMrabRBFfPFrresVrqjRlq18o1JqLaryya3r2srTKdz1re7c6uw108sY2ckg0cMqGuaxUr2dOWrX2K8kpeXllfjcd3uNUPtBrMoRk9VvMtZ/Wl9QCwT1/rPit7zpDr/WfFb3nSAAdf6z4re86Q6/1nxW950gAHX+s+K3vOkOv9Z8VvedIAB1/rPit7zpDr/WfFb3nSAAdf6z4re86Q6/1nxW950gAHX+s+K3vOkRL7Qayllare8+X1AFEL7Q614rec+X1H3h1nP+VvNyz+vL6gEE/eDWVw1S858vqAAP/Z'" alt="gambar" style="max-width: 50px; max-height: 50px;">
+                <!-- <img :src="getImageBase64Getter(props.item.file)" alt="gambar" style="max-width: 50px; max-height: 50px;">
+                <img :src="getImageBase64(props.item.file)" alt="gambar" style="max-width: 50px; max-height: 50px;"> -->
                 <!-- <img v-if="imageUrl" :src="imageUrl" alt="gambar" style="max-width: 50px; max-height: 50px;"> -->
               </td>
               <td>{{ props.item.nama }}</td>
@@ -278,10 +281,6 @@ export default {
       // headers: state => state.Pegawai.headers
     }),
 
-    getImageUrl(namefile) {
-      return this.$store.dispatch('Pegawai/getImage', namefile);
-    },
-
     selectedCareerCode() {
       return this.$store.getters['Pegawai/TreeFilter/selectedCareerCode'];
     },
@@ -502,8 +501,19 @@ export default {
       }
     },
 
-    getImageGetter(name){
-      this.getImage(name)
+    async getImageBase64(namefile){
+      try{
+        const response = await this.$store.dispatch('Pegawai/getImageBase64', namefile)
+        // return response.debug
+        return `data:image/*;base64,${response.debug}`;
+
+      }catch(err){
+        console.log(err)
+      }
+    },
+
+    getImageBase64Getter(name){
+      this.getImageBase64(name)
     },
 
     async filterItems() {
