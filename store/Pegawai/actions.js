@@ -232,12 +232,15 @@ export default{
 
   async getImage({commit}, namefile){
     try{
-      const filename = namefile.split('/')[1];
-      const response =  await this.$axios.get(`api/storage/${filename}`)
-      // return  await this.$axios.get(`api/storage/1708398880_staircase.jpg`)
-      // console.log(`api/storage/${namefile}`)
-      //console.log(response)
-      return response.data
+      // const filename = namefile.split('/')[1]; // sudah tidak digunakan lagi 
+      const response =  await this.$axios.get(`api/storage/${namefile}`, {
+        responseType: 'blob',
+      })
+      const blob = new Blob([response.data], { type: 'image/*' });
+      const url = window.URL.createObjectURL(blob);
+      // console.log(url) // blob:http://localhost:3000/5cd7de13-8e38-47e2-9bf4-e751c39f5d2e
+      return url
+
     }catch(err){
       console.log(err)
     }

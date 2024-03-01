@@ -9,7 +9,9 @@
     "generate": "nuxt generate"
   },
   "dependencies": {
+    "@babylonjs/loaders": "^6.45.1",
     "@nuxtjs/axios": "^5.13.6",
+    "babylonjs": "^6.45.1",
     "core-js": "^3.25.3",
     "cors": "^2.8.5",
     "highcharts": "^10.3.3",
