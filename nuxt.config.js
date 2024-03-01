@@ -50,6 +50,7 @@ export default {
     '~/plugins/chart.js',
     '~/plugins/hello.js',
     '~/plugins/axios.js',
+    '~/plugins/babylon.js',
     // '~/plugins/posisiChart.js',
   ],
 
@@ -97,5 +98,8 @@ export default {
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
+    extend(config, ctx) {
+      config.resolve.alias['babylonjs'] = 'babylonjs'; // or the correct path to Babylon.js
+    }
   }
 }

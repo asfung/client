@@ -124,6 +124,7 @@ export default {
           title: {
             text: 'Jumlah Pegawai',
           },
+          allowDecimals: false
         },
         legend: {
           reversed: true,
