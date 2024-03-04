@@ -37,10 +37,15 @@
               <td>{{ props.item.id }}</td>
               <td>
                 <!-- <img :src="`http://localhost:8000/storage/photo/${props.item.file}`" alt="gambar" style="max-width: 50px; max-height: 50px;"> -->
-                <!-- <img v-if="getImage(props.item.file)" :src="getImage(props.item.file)" alt="gambar" style="max-width: 50px; max-height: 50px;"> -->
+                <v-img
+                  v-if="getImageUrl(props.item.file)"
+                  style="max-width: 50px; max-height: 50px;"
+                  :src="getImageUrl(props.item.file)"
+                ></v-img>
+                <span v-else>Loading...</span>
                 <!-- <p>{{ getImage(props.item.file, props.item.id) }}</p> -->
-                <img v-if="imageUrls[props.item.id]" :src="imageUrls[props.item.id]" alt="gambar" style="max-width: 50px; max-height: 50px;">
-                <p v-else-if="!imageUrls[props.item.id]">Loading..</p>
+                <!-- <img v-if="imageUrls[props.item.id]" :src="imageUrls[props.item.id]" alt="gambar" style="max-width: 50px; max-height: 50px;">
+                <p v-else-if="!imageUrls[props.item.id]">Loading..</p> -->
               </td>
               <td>{{ props.item.nama }}</td>
               <td>{{ props.item.jenis_kelamin }}</td>
@@ -230,6 +235,7 @@ export default {
   data() {
     return {
       imageUrls: {}, 
+      imagesLoaded: false,
       editPosisiDialog: false,
       posisiDialog: false,
       loadingData: false,
@@ -355,11 +361,13 @@ export default {
     },
     openEditItemDialog(item) {
       this.editedItem = { ...item };
+      this.editedItem.id = item.id; // to update the item  
       this.editItemDialog = true;
       console.log(this.editedItem)
     },
     closeEditItemDialog() {
       this.editItemDialog = false;
+      this.newItem = {file: null}
     },
 
     confirmDelete(itemId) {
@@ -505,29 +513,56 @@ export default {
     //   }
     // },
 
-    async loadImage(item) {
+    // async loadImage(item) {
+    //   try {
+    //     // this.allPegawai()
+    //     const itemId = item.id;
+    //     if (!this.imageUrls[itemId]) {
+    //       console.log(item)
+    //       const url = await this.$store.dispatch('Pegawai/getImage', item.file);
+    //       console.log(`Image URL for item ${itemId}: ${url}`);
+    //       this.$set(this.imageUrls, itemId, url);
+    //     }
+    //   } catch (err) {
+    //     console.error(err);
+    //   }
+    // },
+
+    // async loadImages(items) {
+    //   for (const item of items) {
+    //     await this.loadImage(item);
+    //   }
+    // },
+
+    async loadImage(file) {
       try {
-        const itemId = item.id;
-        if (!this.imageUrls[itemId]) {
-          console.log(item)
-          const url = await this.$store.dispatch('Pegawai/getImage', item.file);
-          console.log(`Image URL for item ${itemId}: ${url}`);
-          this.$set(this.imageUrls, itemId, url);
-        }
-      } catch (err) {
-        console.error(err);
+        const imageUrl = await this.$store.dispatch('Pegawai/getImage', file);
+        this.$set(this.imageUrls, file, imageUrl);
+      } catch (error) {
+        console.error('Error loading image:', error);
+        this.$set(this.imageUrls, file, ''); 
       }
     },
-
-    async loadImages(items) {
-      for (const item of items) {
-        await this.loadImage(item);
+    getImageUrl(file) {
+      if (!this.imageUrls[file]) {
+        this.loadImage(file);
+        return '';
       }
+      return this.imageUrls[file];
     },
 
     async filterItems() {
       this.allPegawai();
     },
+  },
+
+  beforeCreate() {
+    if (this.filteredItemsTable && Array.isArray(this.filteredItemsTable)) {
+      // fetch all the image 
+      this.filteredItemsTable.forEach((item) => {
+        this.loadImage(item.file);
+      });
+    }
   },
 
   mounted(){
@@ -538,9 +573,16 @@ export default {
     this.selectedId
   },
 
-  created() {
-    this.loadImages(this.filteredItemsTable); // mengeload data dari table
-  },
+  // async created() {
+  //   await Promise.all(
+  //     this.filteredItemsTable.map((item) => this.loadImage(item.file))
+  //   );
+  //   this.imagesLoaded = true;
+  // },
+
+  // created() {
+    // this.loadImages(this.filteredItemsTable); // mengeload data dari table
+  // },
 
   watch: {
     selectedCareerCode() {
@@ -551,12 +593,12 @@ export default {
       this.newItem.posisi = this.selectedId.name
       this.editedItem.posisi = this.selectedId.name
     },
-    filteredItemsTable: {
-      handler(newItems) {
-        this.loadImages(newItems);
-      },
-      deep: true,
-    },
+    // filteredItemsTable: {
+    //   handler(newItems) {
+    //     this.loadImages(newItems);
+    //   },
+    //   deep: true,
+    // },
   },
 };
 </script>
