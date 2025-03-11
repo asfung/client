@@ -1,6 +1,7 @@
 <template>
   <v-app>
     <v-container fluid>
+      <pre>{{treeItems}}</pre>
       <v-row>
         <v-col cols="4">
           <v-treeview

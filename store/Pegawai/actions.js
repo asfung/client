@@ -256,16 +256,16 @@ export default{
   },
 
   // ========= DEPRECATED =========
-  async loadPosisi(){
-    try{
-      const response = await this.$axios.get('api/careers')
-      // this.posisiOptions = response.data
-      // this.posisiOptions = response.data.filter(item => item.tree_lvl === "2" || item.tree_lvl === "3")
+  // async loadPosisi(){
+  //   try{
+  //     const response = await this.$axios.get('api/careers')
+  //     // this.posisiOptions = response.data
+  //     // this.posisiOptions = response.data.filter(item => item.tree_lvl === "2" || item.tree_lvl === "3")
 
-    }catch(err){
-      console.log(err)
-    }
-  },
+  //   }catch(err){
+  //     console.log(err)
+  //   }
+  // },
   // ========= DEPRECATED =========
 
 

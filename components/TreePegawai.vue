@@ -1,5 +1,7 @@
 <template>
-  <v-treeview :items="treeDataItems" activatable @update:active="treeViewHandler"></v-treeview>
+  <div>
+    <v-treeview :items="treeDataItems" activatable @update:active="treeViewHandler"></v-treeview>
+  </div>
 </template>
 
 <script>
@@ -27,7 +29,7 @@ export default {
         // const response = await this.$axios.get('http://localhost:8000/api/careers');
         // // Transform the API response for v-treeview
         // this.treeItems = this.transformDataForTreeView(response.data);
-        const response = await this.$axios.get('http://localhost:8000/api/career_test');
+        const response = await this.$axios.get('http://localhost:8000/api/careers');
         // this.treeDataItems = response.data
         this.treeDataItems = this.transformDataForTreeView(response.data);
 

@@ -52,7 +52,8 @@
               <td>{{ props.item.provinsi }}</td>
               <td>{{ props.item.agama }}</td>
               <td>{{ props.item.posisi }}</td>
-              <td>{{ props.item.gaji }}</td>
+              <!-- <td>{{ props.item.gaji }}</td> -->
+              <td>{{ formatRupiah(props.item.gaji) }}</td>
               <td>
                 <v-btn @click="openEditItemDialog(props.item)" icon>
                   <v-icon>mdi-pencil</v-icon>
@@ -549,6 +550,12 @@ export default {
         return '';
       }
       return this.imageUrls[file];
+    },
+
+    formatRupiah(number){
+      let reversed = number.toString().split('').reverse().join('');
+      let formatted = reversed.match(/.{1,3}/g).join('.');
+      return 'Rp. ' + formatted.split('').reverse().join('');
     },
 
     async filterItems() {

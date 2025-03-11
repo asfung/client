@@ -41,16 +41,16 @@
 
     <v-btn
     color="primary"
-    @click="$router.push('/ui')"
+    @click="$router.push('/register')"
     >
-    Back
+    Register
     </v-btn>
-    <v-btn
+    <!-- <v-btn
     color="error"
     @click="$router.push('/')"
     >
     Balik Kerumah
-    </v-btn>
+    </v-btn> -->
   </v-card-actions>
 
   </v-card>
@@ -104,7 +104,7 @@
           // ada di ~/.config/chromium/default/local\ storage/
           localStorage.setItem('token', token);
 
-          this.$router.push('/ui');
+          this.$router.push('/');
         } catch (error) {
             console.error('Error logging in:', error);
             window.alert('Login failed. Please check your credentials.');

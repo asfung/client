@@ -93,7 +93,7 @@ export default {
 
     async fetchCareerData() {
       try {
-        const response = await this.$axios.get('http://localhost:8000/api/career_test');
+        const response = await this.$axios.get('http://localhost:8000/api/careers');
         this.treeDataItems = this.transformDataForTreeView(response.data);
 
       } catch (error) {
